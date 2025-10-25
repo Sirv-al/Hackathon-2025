@@ -140,13 +140,13 @@ export function initMapScene(containerId, mapType = 'knight') {
     // Choose model path based on map type
 let modelPath;
 switch (mapType) {
-    case 'knight':
+    case 'knight-windmill':
         modelPath = '/models/knightbattle.glb';
         break;
-    case 'cave':
+    case 'dragon-island':
         modelPath = '/models/watcher_cave.glb';
         break;
-    case 'castle':
+    case 'troll-castle':
         modelPath = '/models/low_poly_castle.glb';
         break;
     default:
@@ -181,10 +181,10 @@ loader.load(
 
         // --- Scale models per type ---
         switch (mapType) {
-            case 'cave':
+            case 'dragon-island':
                 model.scale.set(0.1, 0.1, 0.1); // shrink cave
                 break;
-            case 'castle':
+            case 'troll-castle':
                 model.scale.set(1, 1, 1);       // enlarge castle
                 break;
             case 'medieval_town_two':

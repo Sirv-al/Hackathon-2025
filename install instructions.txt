@@ -17,3 +17,5 @@ npm install openai
 
 
 need to set the enemy for the ai
+music
+try animations

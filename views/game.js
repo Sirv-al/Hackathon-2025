@@ -234,19 +234,20 @@ function parseHPCommands(responseText) {
         if (cleanupMapScene) cleanupMapScene();
         cleanupMapScene = initMapScene(mapContainerId, selectedMap.toLowerCase());
 
+        let enemy = "";
+        console.log("*****" + selectedMap);
         // This is just another form of player action
-
-        if (selectedMap == "Windmill Battle") {
+        if (selectedMap == "knight-windmill") {
             playMusic('Chinggis khaanii Magtaal - Batzorig Vaanchig.mp3')
-            const enemy = "Knight"
-        } else if (selectedMap == "Dragon Island") {
+            enemy = "Knight"
+        } else if (selectedMap == "dragon-island") {
             playMusic('Elden Ring OST 66 The Final Battle.mp3')
-            const enemy = "Dragon"
-        } else if (selectedMap == "Troll Castle") {
+            enemy = "Dragon"
+        } else if (selectedMap == "troll-castle") {
             playMusic('views/Daudi Kaupmadr  God Of War (Troll Encounter) In-Game [HQ].mp3');
-            const enemy = "Troll"
+            enemy = "Troll"
         } else {
-            const enemy = "Human"
+            enemy = "Human"
         }
 
         const payload = selectedMap + " Enemy: " + enemy;
