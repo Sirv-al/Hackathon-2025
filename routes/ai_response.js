@@ -22,30 +22,7 @@ class GeminiModel {
 
     async generateContent(prompt) {
         try {
-<<<<<<< HEAD
-
-            const stream1 = await this.chat.sendMessageStream({
-                message: "I have 2 dogs in my house",
-            })
-
-            for await (const chunk of stream1) {
-                console.log(chunk.text);
-                console.log("_".repeat(80));
-            }
-
-            const stream2 = await this.chat.sendMessageStream({
-                message: "How many paws are in my house?",
-            });
-
-            for await (const chunk of stream2) {
-                console.log(chunk.text);
-                console.log("_".repeat(80));
-            }
-
-            const result = await this.geminiAI.models.generateContentStream({
-=======
             const result = await this.geminiAI.models.generateContent({
->>>>>>> noWebSocket
                 model: "gemini-2.5-flash",
                 contents: prompt,
             });
