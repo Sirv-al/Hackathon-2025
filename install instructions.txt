@@ -8,3 +8,9 @@ This will run vite and nodeJS server simultaneously
 to run: npm run dev
 
 npm install openai
+
+
+
+
+
+need to set the enemy for the ai
