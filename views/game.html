@@ -13,12 +13,14 @@
             overflow: hidden; /* Prevents scrollbars */
 
             color: #000000;
+            
         }
 
         /* This is the main container. It will hold the 3D map as the background.
           We use 'position: relative' so we can 'absolutely' position
           all the UI widgets on top of it.
         */
+        
         #game-container {
             position: relative;
             width: 100%;
@@ -130,6 +132,19 @@
     </style>
 </head>
 <body>
+
+    <div id="camera-debug" style="
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    z-index: 9999;
+">Camera: X:0 Y:0 Z:0</div>
+
 
     <!--
       This is now the background. Your 'map.js' script will target this div.

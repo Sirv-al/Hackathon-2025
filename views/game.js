@@ -1,5 +1,7 @@
 import { initMapScene } from './mapScene.js';
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- MAP INITIALIZATION ---
     const mapSelect = document.getElementById('map-select');

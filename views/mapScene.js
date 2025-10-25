@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const MAP_SETTINGS = {
     knight: {
-        cameraPos: { x: 0, y: 20, z: 40 },
+        cameraPos: { x: -5.16 , y: 1.14, z: 9.6 },
         ambient: { color: 0xffd4a3, intensity: 0.4 },
         sun: { color: 0xff7e47, intensity: 1.2, pos: [-1, 0.5, -1] },
         sky: { color: 0x5b8dff, intensity: 0.4, pos: [1, 1, 1] },
@@ -23,7 +23,7 @@ const MAP_SETTINGS = {
         bgGradient: ['#1a1a2e', '#000000'] // dark blue to black
     },
     castle: {
-        cameraPos: { x: -45, y: 30, z: 20 },
+        cameraPos: { x: -0.96, y: 10, z: 21.37 },
         ambient: { color: 0xffffff, intensity: 0.5 },
         sun: { color: 0xfff4c2, intensity: 1.0, pos: [1, 1, 0.5] },
         sky: { color: 0x99ccff, intensity: 0.5, pos: [0, 1, 1] },
@@ -32,7 +32,7 @@ const MAP_SETTINGS = {
         bgGradient: ['#e0c97f', '#b0975a'] // golden
     },
     medieval_town_two: {
-        cameraPos: { x: 0, y: 25, z: 50 },
+        cameraPos: { x: -1.23, y: 12.83, z: 21.41 },
         ambient: { color: 0xf8dcb8, intensity: 0.45 },
         sun: { color: 0xffd08a, intensity: 1.1, pos: [-1, 0.6, -0.3] },
         sky: { color: 0x87ceeb, intensity: 0.5, pos: [0.5, 1, 0.8] },
@@ -172,12 +172,13 @@ loader.load(
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
-        camera.position.set(
-            center.x + maxDim * 0.5,
-            center.y + maxDim * 0.3,
-            center.z + maxDim * 0.5
-        );
-        orbit.target.copy(center);
+        // camera.position.set(
+        //     center.x + maxDim * 0.5,
+        //     center.y + maxDim * 0.3,
+        //     center.z + maxDim * 0.5
+        // );
+        // orbit.target.copy(center);
+        orbit.target.set(0, 0, 0); // Or some map-specific target if needed
         orbit.update();
     },
     function (progress) {
@@ -255,12 +256,19 @@ loader.load(
     });
     resizeObserver.observe(container);
 
+    const cameraDebugEl = document.getElementById('camera-debug');
+
     // Animation loop
     function animate() {
         requestAnimationFrame(animate);
         orbit.update();
         renderer.render(scene, camera);
         labelRenderer.render(scene, camera);
+         // Update debug overlay
+    if (cameraDebugEl) {
+        const { x, y, z } = camera.position;
+        cameraDebugEl.textContent = `Camera: X:${x.toFixed(2)} Y:${y.toFixed(2)} Z:${z.toFixed(2)}`;
+    }
     }
 
     animate();
