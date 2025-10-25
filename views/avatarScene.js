@@ -32,68 +32,150 @@ export function initAvatarScene(containerId) {
     renderer.domElement.style.height = '100%';
     container.appendChild(renderer.domElement);
 
-    // Animation mixer and available animations
+    // Animation mixer
     let mixer;
-    let availableAnimations = [];
-    let animationActions = {};
 
     const loader = new GLTFLoader();
     const orbit = new OrbitControls(camera, renderer.domElement);
-    orbit.enableZoom = false;
+    orbit.enableZoom = false; // Disable zooming for the small container
 
-    // ... rest of your existing setup code ...
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(container.clientWidth, container.clientHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0';
+    labelRenderer.domElement.style.left = '0';
+    labelRenderer.domElement.style.pointerEvents = 'none';
+    container.appendChild(labelRenderer.domElement);
+
+    // Set up camera for a closer, front-facing view
+    camera.position.z = 2;
+    camera.position.y = 0.5;
+    
+    // Limit orbit controls to prevent disorienting views
+    orbit.minPolarAngle = Math.PI/2 - 0.2; // Limit vertical rotation
+    orbit.maxPolarAngle = Math.PI/2 + 0.2;
+    orbit.minAzimuthAngle = -0.5; // Limit horizontal rotation
+    orbit.maxAzimuthAngle = 0.5;
+    orbit.update();
 
     // Load the avatar model
     loader.load(
         "/models/GreenWizardAvatar.glb",
         function (gltf) {
             console.log('Avatar loaded successfully');
-            gltf.scene.position.set(0, -0.3, 0);
-            gltf.scene.scale.set(1.5, 1.5, 1.5);
-            gltf.scene.rotation.y = 0;
+            gltf.scene.position.set(0, -0.3, 0); // Centered, slightly lower
+            gltf.scene.scale.set(1.5, 1.5, 1.5); // Slightly bigger
+            gltf.scene.rotation.y = 0; // Face forward
             scene.add(gltf.scene);
 
             // Setup animation mixer
             mixer = new THREE.AnimationMixer(gltf.scene);
             
-            // Store available animations
-            availableAnimations = gltf.animations.map(clip => clip.name);
-            
-            // Create animation actions for quick access
-            gltf.animations.forEach((clip) => {
-                animationActions[clip.name] = mixer.clipAction(clip);
-            });
+            // Create compact animation controls
+            const controlsDiv = document.createElement('div');
+            controlsDiv.style.position = 'absolute';
+            controlsDiv.style.top = '5px';
+            controlsDiv.style.right = '5px';
+            controlsDiv.style.zIndex = '100';
+            controlsDiv.style.display = 'flex';
+            controlsDiv.style.flexDirection = 'column';
+            controlsDiv.style.gap = '1px';
+            controlsDiv.style.background = 'rgba(0, 0, 0, 0.2)';
+            controlsDiv.style.padding = '2px';
+            controlsDiv.style.borderRadius = '3px';
+            controlsDiv.style.maxWidth = '60px';
+            container.appendChild(controlsDiv);
 
-            // ... rest of your button creation code ...
+            gltf.animations.forEach((clip, index) => {
+                const button = document.createElement('button');
+                button.textContent = clip.name || `Animation ${index + 1}`;
+                button.style.padding = '1px 3px';
+                button.style.fontSize = '0.6em';
+                button.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                button.style.color = '#000';
+                button.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                button.style.borderRadius = '2px';
+                button.style.cursor = 'pointer';
+                button.style.margin = '0';
+                button.style.width = '100%';
+                button.style.textAlign = 'left';
+                button.style.transition = 'all 0.2s ease';
+                // Shorten animation names if they're too long
+                if (clip.name.length > 8) {
+                    button.textContent = clip.name.substring(0, 8) + '...';
+                    button.title = clip.name; // Show full name on hover
+                }
+
+                // Add hover effects
+                button.addEventListener('mouseover', () => {
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                    button.style.transform = 'translateX(-2px)';
+                });
+                
+                button.addEventListener('mouseout', () => {
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                    button.style.transform = 'translateX(0)';
+                });
+                
+                button.addEventListener('click', () => {
+                    mixer.stopAllAction();
+                    const action = mixer.clipAction(clip);
+                    action.reset();
+                    action.play();
+                });
+                controlsDiv.appendChild(button);
+            });
         },
-        // ... rest of your load callbacks ...
+        function (progress) {
+            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+        },
+        function (error) {
+            console.error('Error loading avatar:', error);
+        }
     );
 
-    // ... rest of your existing code (lighting, resize, animate) ...
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
 
-    // Function to play random animation
-    const playRandomAnimation = () => {
-        if (availableAnimations.length > 0 && mixer) {
-            const randomIndex = Math.floor(Math.random() * availableAnimations.length);
-            const randomAnimationName = availableAnimations[randomIndex];
-            
-            mixer.stopAllAction();
-            const action = animationActions[randomAnimationName];
-            if (action) {
-                action.reset();
-                action.play();
-                console.log(`Playing random animation: ${randomAnimationName}`);
-            }
+    const directLight = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+    directLight.position.set(1, 1, 1);
+    scene.add(directLight);
+
+    renderer.setClearColor(0x000000, 0);
+
+    // Handle container resize
+    function onResize() {
+        const newAspect = container.clientWidth / container.clientHeight;
+        camera.aspect = newAspect;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        labelRenderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    // Add resize listener
+    const resizeObserver = new ResizeObserver(onResize);
+    resizeObserver.observe(container);
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        if (mixer) {
+            const delta = clock.getDelta();
+            mixer.update(delta);
         }
-    };
 
-    // Return cleanup function and public methods
-    return {
-        cleanup: () => {
-            resizeObserver.disconnect();
-            container.innerHTML = '';
-        },
-        playRandomAnimation,
-        getAvailableAnimations: () => [...availableAnimations]
+        orbit.update();
+        labelRenderer.render(scene, camera);
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Return cleanup function
+    return () => {
+        resizeObserver.disconnect();
+        container.innerHTML = '';
     };
 }
