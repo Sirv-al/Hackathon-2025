@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- GAME LOGIC SETUP ---
-    const aiDisabled = true;
+    const aiDisabled = false;
 
     // DOM elements
     const diceContainer = document.getElementById("dice-container");
