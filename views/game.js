@@ -181,7 +181,6 @@ function parseHPCommands(responseText) {
     async function handlePlayerInput(e) {
         e.preventDefault();
         const inputText = playerTextInput.value.trim();
-        if (!inputText || isWaitingForRoll) return;
 
         speechBubbleEl.innerHTML = `<p><strong>You:</strong> ${inputText}</p>`;
         playerTextInput.value = "";
@@ -220,7 +219,18 @@ function parseHPCommands(responseText) {
         cleanupMapScene = initMapScene(mapContainerId, selectedMap.toLowerCase());
 
         // This is just another form of player action
-        const payload = selectedMap;
+
+        if (selectedMap == "x") {
+            const enemy = "x"
+        } else if (selectedMap == "y") {
+            const enemy = "y"
+        } else if (selectedMap == "z") {
+            const enemy = "z"
+        } else {
+            const enemy = "Troll"
+        }
+
+        const payload = selectedMap + " Enemy: " + enemy;
 
         // Update UI to show intent
         speechBubbleEl.innerHTML = `<p><strong>You:</strong> I want to travel to the ${mapText}.</p>`;
@@ -248,7 +258,7 @@ function parseHPCommands(responseText) {
             const data = await res.json();
             updateUI(data.text);
 
-            if (data.text.toUpperCase().includes("REQUEST-ROLL") || data.text.toUpperCase().includes("D20") || data.text.toUpperCase().includes("ROLL RESULT") || data.text.toUpperCase().includes("ROLL-RESULT") || data.text.toUpperCase().includes("DC")) {
+            if (data.text.toUpperCase().includes("REQUEST-ROLL") || data.text.toUpperCase().includes("D20") || data.text.toUpperCase().includes("ROLL RESULT") || data.text.toUpperCase().includes("ROLL-RESULT") || data.text.toUpperCase().includes("DC") || data.text.toUpperCase().includes("ROLL")) {
                 document.getElementById("dice-container").style.display = "block";
                 // isWaitingForRoll = true;
                 // handleDiceRoll();

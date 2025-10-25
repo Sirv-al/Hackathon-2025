@@ -125,7 +125,7 @@ router.post('/ai_response', async (req, res) => {
         } else if (endpoint === '/map-selection') {
             messages.push({ 
                 role: "system", 
-                content: `You are an immersive game master for a text-based RPG. Describe the new location and what the player encounters, connecting it to the ongoing narrative.` 
+                content: `You are an immersive game master for a text-based RPG. Describe the new location. THe player encounters the enemy ahead of them, it's up to them how to start` 
             });
         } else {
             messages.push({ 
