@@ -78,7 +78,7 @@ router.post('/ai_response', async (req, res) => {
         if (endpoint === '/start_game') {
             messages.push({ 
                 role: "system", 
-                content: `You are an immersive game master starting a new text-based RPG adventure. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses. You can ask the player to roll a dice, to succeed or fail based on their stats. Put this in the format of request-roll`
+                content: `You are an immersive game master starting a new text-based RPG adventure. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses. You can ask the player to roll a dice, to succeed or fail based on their stats. Put this in the format of request-roll. You can damage the player by setting their HP, do this by doing HP: NUM`
             });
             messages.push({ 
                 role: "user", 
