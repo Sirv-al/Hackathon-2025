@@ -108,7 +108,7 @@ router.post('/ai_response', async (req, res) => {
         if (endpoint === '/start_game') {
             messages.push({ 
                 role: "system", 
-                content: `You are an immersive game master starting a new text-based RPG adventure. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses. You can ask the player to roll a dice (strenght, dex, and int), setting the dc based on their respective stat. Put this in the format of request-roll. In combat you can damage the player by setting their HP, do this by doing {HP: NUM}. `
+                content: `You are an immersive game master starting a new text-based RPG adventure. The player starts in a medievil town. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses. Never roll yourself for the play, instead you can ask the player to roll a dice (strenght, dex, and int), setting the dc based on their respective stat. Put this in the format of request-roll. In combat you can damage the player by setting their HP, do this by doing {HP: NUM}. `
             });
             // Clear previous history when starting a new game
             clearConversationHistory(playerId);
@@ -125,7 +125,7 @@ router.post('/ai_response', async (req, res) => {
         } else if (endpoint === '/map-selection') {
             messages.push({ 
                 role: "system", 
-                content: `You are an immersive game master for a text-based RPG. Describe the new location and what the player encounters, connecting it to the ongoing narrative.` 
+                content: `You are an immersive game master for a text-based RPG. Describe the new location. THe player encounters the enemy ahead of them, it's up to them how to start` 
             });
         } else {
             messages.push({ 

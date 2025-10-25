@@ -13,12 +13,14 @@
             overflow: hidden; /* Prevents scrollbars */
 
             color: #000000;
+            
         }
 
         /* This is the main container. It will hold the 3D map as the background.
           We use 'position: relative' so we can 'absolutely' position
           all the UI widgets on top of it.
         */
+        
         #game-container {
             position: relative;
             width: 100%;
@@ -137,6 +139,19 @@
 </head>
 <body>
 
+    <div id="camera-debug" style="
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-family: monospace;
+    z-index: 9999;
+">Camera: X:0 Y:0 Z:0</div>
+
+
     <!--
       This is now the background. Your 'map.js' script will target this div.
       All other UI elements are "on top" of this.
@@ -168,9 +183,9 @@
         <div id="map-selector-container">
             <label for="map-select">Choose a map:</label>
             <select name="maps" id="map-select">
-                <option value="forest">Dark Forest</option>
-                <option value="cave">Goblin Cave</option>
-                <option value="town">Village Square</option>
+                <option value="knight">Knight Battle</option>
+                <option value="cave">Dragon Cave</option>
+                <option value="Castle">Castle Door</option>
             </select>
             <button id="map-submit-button">Load Map</button>
         </div>
@@ -256,31 +271,7 @@
             window.addEventListener('unload', cleanup);
         });
     </script>
-    <script type="module">
-        import { initMapScene } from './mapScene.js';
-
-        // Initialize the map scene in the container
-        document.addEventListener('DOMContentLoaded', () => {
-            const cleanup = initMapScene('map-container');
-
-            // Clean up when needed (page unload)
-            window.addEventListener('unload', cleanup);
-        });
-    </script>
-
-        <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
-        }
-    }
-    </script>
-
-    <!-- Import your avatar scene module -->
-    <script type="module" src="avatarScene.js"></script>
-
-    <script src="game.js"></script>
+    <script type="module" src="game.js"></script>
 
 </body>
 </html>
