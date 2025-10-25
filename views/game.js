@@ -1,4 +1,5 @@
 // Wait for the HTML document to be fully loaded before running the script
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const aiDisabled = true;
@@ -327,12 +328,16 @@ function parseHPCommands(responseText) {
         
         // Stream the text character by character
         let index = 0;
+
+        // SELECT RANDOM AVITAR ANIMATION
+
         const streamText = () => {
             if (index < displayText.length) {
                 // Add next character (or small chunk)
                 textContainer.innerHTML = `<strong>Game Master:</strong> ${displayText.substring(0, index + 1)}`;
                 index++;
                 
+
                 // Random delay to simulate natural typing speed
                 const delay = Math.random() * 20 + 25; // 25-75ms between characters
                 setTimeout(streamText, delay);
