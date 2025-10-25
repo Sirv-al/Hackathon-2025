@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             current_stats: playerData
         };
-        await sendToBackend("/player_action", payload);
+        await sendToBackend("/dice_roll", roll);
     }
 
     /**
@@ -205,9 +205,9 @@ document.addEventListener("DOMContentLoaded", () => {
      * @param {object} payload - The JSON data to send.
      */
     async function sendToBackend(endpoint, payload) {
-       //onst responseData = await mockBackendResponse(endpoint, payload);
-        payload = endpoint + "|" + payload
-        const responseData = await wsAIResponse(payload);
+       const responseData = await mockBackendResponse(endpoint, payload);
+        //payload = endpoint + "|" + payload
+        //const responseData = await wsAIResponse(payload);
 
 
         // Simulate network delay
