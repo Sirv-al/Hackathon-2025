@@ -117,21 +117,46 @@ document.addEventListener("DOMContentLoaded", () => {
      * Parses the AI response for HP commands and updates player HP accordingly
      * @param {string} responseText - The AI response text
      */
-    function parseHPCommands(responseText) {
-        const hpRegex = /HP:\s*(\d+)/gi;
-        let match;
-        let hpUpdated = false;
-        
-        while ((match = hpRegex.exec(responseText)) !== null) {
-            const newHp = parseInt(match[1]);
-            if (!isNaN(newHp)) {
-                updatePlayerHP(newHp);
-                hpUpdated = true;
-            }
+function parseHPCommands(responseText) {
+    const hpRegex = /HP:\s*(\d+)/gi;
+    const damageRegex1 = /(\d+)\/100/gi;  // X/100 pattern
+    const damageRegex2 = /(\d+)\s*POINTS?\s*OF\s*DMG/gi;  // X POINTS OF DMG pattern
+    
+    let match;
+    let hpUpdated = false;
+    
+    // Original HP parsing
+    while ((match = hpRegex.exec(responseText)) !== null) {
+        const newHp = parseInt(match[1]);
+        if (!isNaN(newHp)) {
+            updatePlayerHP(newHp);
+            hpUpdated = true;
         }
-        
-        return hpUpdated;
     }
+    
+    // X/100 pattern
+    while ((match = damageRegex1.exec(responseText)) !== null) {
+        const damage = parseInt(match[1]);
+        if (!isNaN(damage)) {
+            // Assuming this represents current HP out of 100 max
+            updatePlayerHP(damage);
+            hpUpdated = true;
+        }
+    }
+    
+    // X POINTS OF DMG pattern
+    while ((match = damageRegex2.exec(responseText)) !== null) {
+        const damage = parseInt(match[1]);
+        if (!isNaN(damage)) {
+            const currentHP = playerData.hp;
+            const newHp = Math.max(0, currentHP - damage);
+            updatePlayerHP(newHp);
+            hpUpdated = true;
+        }
+    }
+    
+    return hpUpdated;
+}
 
     /**
      * Adds a new entry to the main game log and auto-scrolls.
@@ -222,11 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const mapText = mapSelect.options[mapSelect.selectedIndex].text;
 
         // This is just another form of player action
-        const payload = {
-            player_text: `I want to travel to the ${mapText}.`,
-            current_stats: playerData,
-            map_selection: selectedMap // Send a structured key as well
-        };
+        const payload = selectedMap;
 
         // Update UI to show intent
         speechBubbleEl.innerHTML = `<p><strong>You:</strong> I want to travel to the ${mapText}.</p>`;
@@ -264,11 +285,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             updateUI(data.text);
 
-            if (data.text.toUpperCase().includes("REQUEST-ROLL") || data.text.toUpperCase().includes("D20") || data.text.toUpperCase().includes("ROLL RESULT") || data.text.toUpperCase().includes("ROLL-RESULT")) {
+            if (data.text.toUpperCase().includes("REQUEST-ROLL") || data.text.toUpperCase().includes("D20") || data.text.toUpperCase().includes("ROLL RESULT") || data.text.toUpperCase().includes("ROLL-RESULT") || data.text.toUpperCase().includes("DC")) {
                 document.getElementById("dice-container").style.display = "block";
                 // isWaitingForRoll = true;
                 // handleDiceRoll();
-            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ")) {
+            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ") || data.text.toUpperCase().includes("POINTS OF DAMAGE") || data.text.toUpperCase().includes("HEALTH") || data.text.toUpperCase().includes("/100")) {
                 // Parse and handle HP commands
                 parseHPCommands(data.text);
             }
