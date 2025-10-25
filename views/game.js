@@ -1,4 +1,3 @@
-
 // Wait for the HTML document to be fully loaded before running the script
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -7,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const mapSelect = document.getElementById("map-select");
     const mapSubmitButton = document.getElementById("map-submit-button");
     const diceContainer = document.getElementById("dice-container");
-    const diceReason = document.getElementById("dice-reason");
     const rollD20Button = document.getElementById("roll-d20-button");
 
     // Right Column
@@ -92,6 +90,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
+     * Updates the player's HP and saves to localStorage
+     * @param {number} newHp - The new HP value
+     */
+    function updatePlayerHP(newHp) {
+        // Ensure HP doesn't go below 0 or above max HP
+        playerData.hp = Math.max(0, Math.min(newHp, playerData.maxHp));
+        
+        // Update the UI
+        hpEl.textContent = playerData.hp;
+        
+        // Save updated player data to localStorage
+        localStorage.setItem("playerData", JSON.stringify(playerData));
+        
+        // Log the HP change
+        updateLog(`Your HP is now ${playerData.hp}/${playerData.maxHp}`, "System");
+        
+        // Check for death
+        if (playerData.hp <= 0) {
+            updateLog("You have been defeated! The adventure ends here.", "System");
+            // Optionally disable further input or trigger game over sequence
+        }
+    }
+
+    /**
+     * Parses the AI response for HP commands and updates player HP accordingly
+     * @param {string} responseText - The AI response text
+     */
+    function parseHPCommands(responseText) {
+        const hpRegex = /HP:\s*(\d+)/gi;
+        let match;
+        let hpUpdated = false;
+        
+        while ((match = hpRegex.exec(responseText)) !== null) {
+            const newHp = parseInt(match[1]);
+            if (!isNaN(newHp)) {
+                updatePlayerHP(newHp);
+                hpUpdated = true;
+            }
+        }
+        
+        return hpUpdated;
+    }
+
+    /**
      * Adds a new entry to the main game log and auto-scrolls.
      * @param {string} text - The message to log.
      * @param {string} speaker - The person speaking (e.g., "Game Master", "You", "System").
@@ -154,26 +196,22 @@ document.addEventListener("DOMContentLoaded", () => {
      * Called when the player clicks the "Roll d20" button.
      */
     async function handleDiceRoll() {
-        if (!isWaitingForRoll) return;
-
         // Simulate a d20 roll
         const roll = Math.floor(Math.random() * 20) + 1;
 
         // Get the reason for the roll from the UI
-        const reason = diceReason.textContent;
 
         // Display the roll in the log
-        updateLog(`You rolled a ${roll} for "${reason}".`, "System");
+        updateLog(`You rolled a ${roll}".`, "System");
 
         // Send the roll result to the backend
         const payload = {
-            dice_roll_result: {
-                reason: reason,
-                roll: roll
-            },
+            dice_roll_result: roll,
             current_stats: playerData
         };
         await sendToAI("/dice_roll", roll);
+
+        document.getElementById("dice-container").style.display = "none";
     }
 
     /**
@@ -193,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update UI to show intent
         speechBubbleEl.innerHTML = `<p><strong>You:</strong> I want to travel to the ${mapText}.</p>`;
 
-        await sendToAI("/player_action", payload);
+        await sendToAI("/map-selection", payload);
     }
 
 
@@ -225,6 +263,15 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Returned data:", data.text);
 
             updateUI(data.text);
+
+            if (data.text.toUpperCase().includes("REQUEST-ROLL") || data.text.toUpperCase().includes("D20") || data.text.toUpperCase().includes("ROLL RESULT") || data.text.toUpperCase().includes("ROLL-RESULT")) {
+                document.getElementById("dice-container").style.display = "block";
+                // isWaitingForRoll = true;
+                // handleDiceRoll();
+            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ")) {
+                // Parse and handle HP commands
+                parseHPCommands(data.text);
+            }
         } catch (err) {
             console.error("Error in sendToBackend:", err);
         }
@@ -236,90 +283,24 @@ document.addEventListener("DOMContentLoaded", () => {
      * @param {object} responseData - The JSON object from the AI.
      */
     function updateUI(responseData) {
-        // 1. Update Avatar Response (Main narrative)
-        avatarResponseEl.innerHTML = `<p><strong>Game Master:</strong> ${responseData}</p>`;
-    }
-
-    // --- 6. Mock Backend Function (FOR TESTING) ---
-
-    /**
-     * A mock function to simulate the Python backend.
-     * It returns a response object based on the player's action.
-     * DELETE OR REPLACE THIS with the real fetch call above.
-     */
-    async function mockBackendResponse(endpoint, payload) {
-        console.log("Sent to Mock Backend:", { endpoint, payload });
-
-        // Welcome message
-        if (endpoint === "/start_game") {
-            return {
-                avatar_response: `Welcome, ${playerData.username}! You awaken in a dark, damp cave. A faint light glows from a tunnel to your north. What do you do?`,
-                narrative: "Your adventure begins.",
-                stats_update: null,
-                dice_roll_request: null,
-                map_update: { x: 0, y: 0, location: "Starting Cave" }
-            };
-        }
-
-        // Handle a dice roll result
-        if (payload.dice_roll_result) {
-            if (payload.dice_roll_result.roll > 10) {
-                return {
-                    avatar_response: `You rolled a ${payload.dice_roll_result.roll} and succeeded! The goblin is surprised and fumbles his weapon. It's your turn!`,
-                    narrative: "You won the initiative roll.",
-                    stats_update: null,
-                    dice_roll_request: null
-                };
-            } else {
-                return {
-                    avatar_response: `You rolled a ${payload.dice_roll_result.roll} and failed... The goblin is too fast! It lunges at you, dealing 3 damage.`,
-                    narrative: "You lost the initiative roll.",
-                    stats_update: { hp: playerData.hp - 3 }, // Send new HP
-                    dice_roll_request: null
-                };
+        // First, parse and handle any HP commands
+        const hadHPCommand = parseHPCommands(responseData);
+        
+        // If there were HP commands, remove them from the displayed text for cleaner output
+        let displayText = responseData;
+        if (hadHPCommand) {
+            displayText = responseData.replace(/HP:\s*\d+/gi, '').trim();
+            // If removing HP command leaves empty text, use a fallback
+            if (!displayText) {
+                displayText = "Your health has been updated.";
             }
         }
-
-        // Handle text input
-        const text = payload.player_text.toLowerCase();
-
-        if (text.includes("map") || text.includes("travel")) {
-             return {
-                avatar_response: `You are traveling to the ${mapSelect.options[mapSelect.selectedIndex].text}... You arrive.`,
-                narrative: "You have arrived at a new location.",
-                map_update: { x: 1, y: 1, location: mapSelect.value }
-            };
-        }
-
-        if (text.includes("look") || text.includes("north")) {
-            return {
-                avatar_response: "You walk north down the tunnel and see a goblin guarding a chest. He hasn't seen you yet.",
-                narrative: "A new challenge appears!",
-                dice_roll_request: {
-                    reason: "Roll for Stealth (Dexterity)"
-                }
-            };
-        }
-
-        if (text.includes("attack")) {
-            return {
-                avatar_response: "You charge the goblin! It snarls and draws its rusty knife. You must roll for initiative!",
-                narrative: "Combat has begun.",
-                avatar_animation: "attack_ready",
-                dice_roll_request: {
-                    reason: "Roll for Initiative (Dexterity)"
-                }
-            };
-        }
-
-        // Default response
-        return {
-            avatar_response: `I don't understand "${text}". Try 'look around', 'attack', or 'travel'.`,
-            narrative: null,
-            stats_update: null,
-            dice_roll_request: null
-        };
+        
+        // 1. Update Avatar Response (Main narrative)
+        avatarResponseEl.innerHTML = `<p><strong>Game Master:</strong> ${displayText}</p>`;
     }
+
+
 
     // --- 7. Start the Game! ---
     initGame();
