@@ -188,7 +188,6 @@ function parseHPCommands(responseText) {
     async function handleMapSelection() {
         const selectedMap = mapSelect.value;
         const mapText = mapSelect.options[mapSelect.selectedIndex].text;
-        speechBubbleEl.innerHTML = `<p><strong>You:</strong> I want to travel to the ${mapText}.</p>`;
 
         // Update map immediately
         if (cleanupMapScene) cleanupMapScene();
