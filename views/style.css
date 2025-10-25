@@ -13,26 +13,16 @@ body {
     /* Default text color (dark brown) */
     color: #3a2a1a;
 
-    /* --- Background Image --- */
+    /* --- NEW: Background Texture --- */
+    /* This dark wood texture makes the parchment widgets pop */
+    background-color: #3a2a1a; /* Dark brown fallback */
+    background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+    background-attachment: fixed;
 
+    /* --- NEW: Aged Text Effect --- */
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 }
-        #map-container {
 
-            position: fixed;
-
-            top: 0;
-
-            left: 0;
-
-            width: 100%;
-
-            height: 100vh;
-
-            background-color: rgba(0, 0, 0, 0.05);
-
-            overflow: hidden;
-
-        }
 /* --- 3. CORE GAME LAYOUT --- */
 #game-container {
     position: relative;
@@ -46,19 +36,33 @@ body {
     pointer-events: auto; /* Re-enable clicks for game container children */
 }
 
-
+#map-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
 
 /* --- 4. WIDGET THEME (Parchment & Wood) --- */
 .widget {
     position: absolute;
     background-color: rgba(253, 245, 230, 0.92); /* Opaque Parchment */
-    border: 10px solid #663f19; /* Thick "wooden" frame */
     margin: 10px;
     padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6); /* Dark shadow */
+    border-radius: 3px;
     pointer-events: auto; /* Ensure widgets are clickable */
     box-sizing: border-box; /* Include padding/border in width */
+
+    /* --- NEW: Realistic Inset Frame --- */
+    /* Replaces the flat 10px border with a 3D frame */
+    border: 2px solid #5a3a22; /* A thin, sharp inner border */
+    box-shadow:
+        0 0 25px rgba(0, 0, 0, 0.6), /* The existing outer shadow */
+        inset 0 0 0 4px #c8a46e, /* A thin "gold" line */
+        inset 0 0 0 8px #663f19; /* A thick "wood" inset */
 }
 
 /* --- 5. WIDGET POSITIONING --- */
@@ -88,25 +92,45 @@ body {
     width: 300px;
 }
 
-
 /* --- 6. WIDGET CONTENT & TYPOGRAPHY --- */
 h2 {
     margin-top: 0;
     color: #5a3a22; /* Medium brown for headers */
+
+    /* --- NEW: Ornate Header Underline --- */
+    /* This looks more stylized than a simple border */
+    padding-bottom: 10px;
+    border-bottom: 3px solid;
 }
 
 strong {
     color: #5a3a22;
 }
 
-/* Themed horizontal dividers */
+/* --- NEW: Ornamental Dividers --- */
+/* These flourishes replace the simple border-bottom lines */
+#avatar-container::after,
+#avatar-response::after,
+#map-selector-container::after {
+    content: '';
+    display: block;
+    height: 20px;
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 80%; /* Smaller flourish */
+    opacity: 0.4;
+    margin: 10px 0 5px 0;
+}
+
+/* Remove the old borders */
 #avatar-container,
 #avatar-response,
 #map-selector-container,
 #game-log {
-    border-bottom: 2px solid #8b4513; /* Saddle-brown border */
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
 }
 
 #avatar-container {
@@ -115,6 +139,7 @@ strong {
     background-color: rgba(0, 0, 0, 0.05); /* Slight tint for 3D model */
     overflow: hidden;
     width: 100%;
+    border-radius: 2px;
 }
 
 #avatar-container p {
@@ -131,10 +156,23 @@ strong {
     overflow-y: auto;
     padding: 5px;
     background-color: rgba(230, 210, 190, 0.2); /* Faint parchment tint */
+    border: 1px dashed #5a3a22; /* Dashed "stitched" border */
+    margin-top: 10px;
 }
 
 #game-log.hidden {
     display: none;
+}
+
+/* --- NEW: Drop Cap for Log (like a manuscript) --- */
+#game-log p::first-letter {
+    font-size: 2.5em; /* 2.5x the normal size */
+    font-weight: bold;
+    color: #8B0000; /* Dark Red "ink" */
+    float: left;
+    margin-right: 6px;
+    margin-top: 5px;
+    line-height: 1;
 }
 
 /* --- 7. BUTTONS & INPUTS --- */
@@ -148,10 +186,19 @@ button {
     cursor: pointer;
     border-radius: 2px;
     transition: background-color 0.2s;
+
+    /* --- NEW: Button Polish --- */
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.2);
 }
 
 button:hover {
     background-color: #a0522d; /* Lighter brown on hover */
+}
+
+button:active {
+    box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3); /* Pressed-in look */
+    transform: translateY(1px); /* Click effect */
 }
 
 /* Style for text input and map dropdown */
@@ -180,7 +227,7 @@ select {
 
 /* --- 8. DICE STYLING --- */
 #dice-container {
-    display: none; /* game.js will change this */
+    display: block; /* game.js will change this */
     padding: 10px;
     text-align: center;
 }
@@ -199,9 +246,44 @@ select {
     padding: 0;
     width: 100px;
     height: 100px;
+
+    /* --- NEW: Remove button shadows for transparent button --- */
+    box-shadow: none;
+    text-shadow: none;
+}
+#roll-d20-button:active {
+    transform: translateY(1px); /* Keep click effect */
+    box-shadow: none;
 }
 
 #roll-d20-button img {
     width: 100%;
     height: 100%;
+}
+
+/* --- NEW: Themed Scrollbar (for game log) --- */
+::-webkit-scrollbar {
+    width: 12px;
+}
+::-webkit-scrollbar-track {
+    background: #fdf5e6; /* Parchment track */
+    border-left: 1px solid #5a3a22;
+}
+::-webkit-scrollbar-thumb {
+    background: #8b4513; /* Saddle brown handle */
+    border-radius: 2px;
+    border: 1px solid #5a3a22;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a0522d;
+}
+
+/* --- NEW: Link Styling (if you add any) --- */
+a {
+    color: #4a3a2a; /* Darker brown */
+    text-decoration: underline;
+}
+a:hover {
+    color: #8B0000; /* Red on hover */
+    text-decoration: none;
 }
