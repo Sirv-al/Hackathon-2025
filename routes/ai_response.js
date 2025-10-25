@@ -1,3 +1,5 @@
+const express = require('express');
+const router = express.Router();
 const { GoogleGenAI } = require("@google/genai");
 
 class GeminiModel {
@@ -18,8 +20,9 @@ class GeminiModel {
         });
     }
 
-    async generateContent(prompt, ws) {
+    async generateContent(prompt) {
         try {
+<<<<<<< HEAD
 
             const stream1 = await this.chat.sendMessageStream({
                 message: "I have 2 dogs in my house",
@@ -40,23 +43,32 @@ class GeminiModel {
             }
 
             const result = await this.geminiAI.models.generateContentStream({
+=======
+            const result = await this.geminiAI.models.generateContent({
+>>>>>>> noWebSocket
                 model: "gemini-2.5-flash",
-                contents: prompt
+                contents: prompt,
             });
 
-            for await (const chunk of result) {
-                const textChunk = chunk.text;
-                ws.send(JSON.stringify({ text: textChunk}));
-            }
-
-            ws.send(JSON.stringify({ event: 'end', data: 'done' }));
+            // You may need to adapt this depending on actual API response structure
+            return result.text || 'No text returned.';
         } catch (err) {
             console.error("Gemini error:", err);
-            ws.send(JSON.stringify({ error: err.message}));
-        } finally {
-            ws.close();
+            throw new Error(err.message);
         }
-    }
+    } 
 }
 
-module.exports = { GeminiModel };
+const gemini = new GeminiModel();
+
+router.post('/ai_response', async (req, res) => {
+    try {
+        const { text } = req.body;
+        const output = await gemini.generateContent(text);
+        res.json({ text: output });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+module.exports = router;
