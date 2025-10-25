@@ -84,6 +84,7 @@ body {
     transform: translateX(-50%); /* Center the widget */
     width: 50%;
     max-width: 700px;
+    
 }
 
 #monster-container {
@@ -131,6 +132,18 @@ strong {
     border-bottom: none;
     padding-bottom: 0;
     margin-bottom: 0;
+
+
+}
+
+#game-log {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+
+    max-height: 150px;
+
+
 }
 
 #avatar-container {
