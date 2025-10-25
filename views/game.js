@@ -207,7 +207,28 @@ document.addEventListener("DOMContentLoaded", () => {
     async function sendToBackend(endpoint, payload) {
        //onst responseData = await mockBackendResponse(endpoint, payload);
         payload = endpoint + "|" + payload
-        const responseData = await wsAIResponse(payload);
+
+        try {
+            const res = await fetch('/ai_response', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: payload })
+            });
+            
+            if (!res.ok) {
+                throw new Error('AI request failed');
+            }
+
+            const data = await res.json();
+
+        } catch (err) {
+            console.error(err);
+            const data = err;
+        }
+
+        const responseData = data;
 
 
         // Simulate network delay

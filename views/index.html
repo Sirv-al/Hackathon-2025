@@ -1,35 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Simple Frontend</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            text-align: center;
-        }
-        h1 {
-            color: #333;
-        }
-        form {
-            margin: 20px;
-        }
-        input {
-            padding: 10px;
-            width: 300px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STart Screen </title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome to my Frontend!</h1>
-    <p>This is a simple HTML page served by Node.js</p>
 
-    <form id="saveForm">
-        <input name="request" placeholder="Enter your request">
-        <button type="submit">Submit</button>
-    </form>
-    <div id="response"></div>
+    <main class="creation-container">
+        <h1>Create Your Adventurer</h1>
+        <p>Your journey begins. First, describe your hero.</p>
 
-    <script src="/js/script.js"></script>
+        <form id="character-form">
+
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="e.g., 'Elara the Brave'"
+                    required>
+            </div>
+
+            <fieldset>
+                <legend>Ability Scores</legend>
+                <p>Assign your character's core stats (1-20).</p>
+
+                <div class="form-group">
+                    <label for="strength">Strength:</label>
+                    <input
+                        type="number"
+                        id="strength"
+                        name="strength"
+                        value="10"
+                        min="1"
+                        max="20"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="dexterity">Dexterity:</label>
+                    <input
+                        type="number"
+                        id="dexterity"
+                        name="dexterity"
+                        value="10"
+                        min="1"
+                        max="20"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="intelligence">Intelligence:</label>
+                    <input
+                        type="number"
+                        id="intelligence"
+                        name="intelligence"
+                        value="10"
+                        min="1"
+                        max="20"
+                        required>
+                </div>
+            </fieldset>
+
+            <button type="submit" id="start-button">Start Adventure</button>
+
+        </form>
+    </main>
+
+    <script src="main.js"></script>
+
 </body>
 </html>
