@@ -3,7 +3,7 @@ const router = express.Router();
 const { GoogleGenAI } = require("@google/genai");
 const { OpenAI } = require('openai');
 
-
+const conversationHistory = new Map();
 
 class GeminiModel {
     constructor() {
@@ -30,7 +30,6 @@ class GeminiModel {
                 contents: prompt,
             });
 
-            // You may need to adapt this depending on actual API response structure
             return result.text || 'No text returned.';
         } catch (err) {
             console.error("Gemini error:", err);
@@ -46,15 +45,16 @@ class OpenAIClient {
         });
     }
 
-    async generateContent(prompt) {
+    async generateContent(messages) { // messages should be an array of objects
         try {
-            const response = await this.openai.responses.create({
-                model: "gpt-5-nano",
-                input: prompt,
-                store: true,
+            const response = await this.openai.chat.completions.create({
+                model: "gpt-3.5-turbo", // Fixed model name - "gpt-5-nano" doesn't exist
+                messages: messages, // This should be an array, not a string
+                max_tokens: 150,
+                temperature: 0.8,
             });
 
-            return response.output_text;
+            return response.choices[0].message.content;
         } catch (err) {
             console.error("OpenAI error:", err);
             throw new Error(err.message);
@@ -62,7 +62,6 @@ class OpenAIClient {
     }
 }
 
-// const gemini = new GeminiModel();
 const openAI = new OpenAIClient();
 
 router.post('/ai_response', async (req, res) => {
@@ -73,69 +72,67 @@ router.post('/ai_response', async (req, res) => {
         console.log("  📍 Endpoint:", endpoint);
         console.log("  📦 Payload:", JSON.stringify(payload, null, 2));
 
-        const promptParts = [];
+        const messages = []; // This will be our array of message objects
         
         // Handle different endpoints with appropriate system messages
         if (endpoint === '/start_game') {
-            promptParts.push({ 
+            messages.push({ 
                 role: "system", 
-                content: `You are an immersive game master starting a new text-based RPG adventure. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses`
+                content: `You are an immersive game master starting a new text-based RPG adventure. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses. You can ask the player to roll a dice, to succeed or fail based on their stats. Put this in the format of request-roll`
             });
-            promptParts.push({ 
+            messages.push({ 
                 role: "user", 
                 content: `**New Player Character:**\n${formatPlayerData(payload.playerData)}` 
             });
         } else if (endpoint === '/player_action') {
-            promptParts.push({ 
+            messages.push({ 
                 role: "system", 
-                content: `You are an immersive game master for a text-based RPG. Respond to the player's action by advancing the narrative naturally.` 
+                content: `You are an immersive game master for a text-based RPG. Respond to the player's action by advancing the narrative naturally. If they want to do a specific action, get them to roll a d20 and give them success or failure and consequences based on their stats. To request a roll put in the format of request-roll. ` 
             });
-            promptParts.push({ 
+            messages.push({ 
                 role: "user", 
                 content: `**Player Character:**\n${formatPlayerData(payload.current_stats)}` 
             });
             
             if (payload.player_text) {
-                promptParts.push({ 
+                messages.push({ 
                     role: "user", 
                     content: `**Player Action:** "${payload.player_text}"` 
                 });
             }
+        } else if (endpoint === '/dice_roll') {
+            messages.push({ 
+                role: "system", 
+                content: `You are an immersive game master for a text-based RPG. Interpret the dice roll result giving success or failure, and progress.` 
+            });
+            messages.push({ 
+                role: "user", 
+                content: `**Game Mechanics:** Dice roll: ${payload}` 
+            });
+        } else if (endpoint === '/map-selection') {
+            messages.push({ 
+                role: "system", 
+                content: `You are an immersive game master for a text-based RPG. Describe the new location and what the player encounters.` 
+            });
+            messages.push({ 
+                role: "user", 
+                content: `**Location:** ${payload.map_selection}` 
+            });
         } else {
             // Generic fallback for other endpoints
-            promptParts.push({ 
+            messages.push({ 
                 role: "system", 
                 content: `You are an immersive game master for a text-based RPG. The player is interacting through: ${endpoint}` 
             });
-            promptParts.push({ 
+            messages.push({ 
                 role: "user", 
                 content: `**Game Context:**\n${JSON.stringify(payload, null, 2)}` 
             });
         }
 
-        // Add common elements that might exist in any payload
-        if (payload.dice_roll_result) {
-            promptParts.push({ 
-                role: "user", 
-                content: `**Game Mechanics:** Dice roll: ${payload.dice_roll_result.roll} (${payload.dice_roll_result.reason})` 
-            });
-        }
+        console.log("✨ Final Game Messages:", JSON.stringify(messages, null, 2));
 
-        if (payload.map_selection) {
-            promptParts.push({ 
-                role: "user", 
-                content: `**Location:** ${payload.map_selection}` 
-            });
-        }
-
-        // Format final prompt
-        const fullPrompt = promptParts.map(p => 
-            `## ${p.role.toUpperCase()} ##\n${p.content}`
-        ).join("\n\n---\n\n");
-
-        console.log("✨ Final Game Prompt:\n", fullPrompt);
-
-        const output = await openAI.generateContent(fullPrompt);
+        const output = await openAI.generateContent(messages); // Pass the array directly
         res.json({ text: output });
         
     } catch (err) {
@@ -147,9 +144,7 @@ router.post('/ai_response', async (req, res) => {
     }
 });
 
-// Improved helper function that handles different data structures
 function formatPlayerData(playerData) {
-    // Handle both payload structures
     const stats = playerData.stats || playerData;
     const username = playerData.username || 'Adventurer';
     const hp = playerData.hp !== undefined ? playerData.hp : 100;
@@ -166,5 +161,5 @@ function formatPlayerData(playerData) {
 ❤️ **Health**: ${hp}/${maxHp}
 `;
 }
-
+ 
 module.exports = router;

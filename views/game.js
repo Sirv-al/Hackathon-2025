@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const mapSelect = document.getElementById("map-select");
     const mapSubmitButton = document.getElementById("map-submit-button");
     const diceContainer = document.getElementById("dice-container");
-    const diceReason = document.getElementById("dice-reason");
     const rollD20Button = document.getElementById("roll-d20-button");
 
     // Right Column
@@ -154,26 +153,22 @@ document.addEventListener("DOMContentLoaded", () => {
      * Called when the player clicks the "Roll d20" button.
      */
     async function handleDiceRoll() {
-        if (!isWaitingForRoll) return;
-
         // Simulate a d20 roll
         const roll = Math.floor(Math.random() * 20) + 1;
 
         // Get the reason for the roll from the UI
-        const reason = diceReason.textContent;
 
         // Display the roll in the log
-        updateLog(`You rolled a ${roll} for "${reason}".`, "System");
+        updateLog(`You rolled a ${roll}".`, "System");
 
         // Send the roll result to the backend
         const payload = {
-            dice_roll_result: {
-                reason: reason,
-                roll: roll
-            },
+            dice_roll_result: roll,
             current_stats: playerData
         };
         await sendToAI("/dice_roll", roll);
+
+        document.getElementById("dice-container").style.display = "none";
     }
 
     /**
@@ -193,7 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update UI to show intent
         speechBubbleEl.innerHTML = `<p><strong>You:</strong> I want to travel to the ${mapText}.</p>`;
 
-        await sendToAI("/player_action", payload);
+        await sendToAI("/map-selection", payload);
     }
 
 
@@ -225,6 +220,12 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Returned data:", data.text);
 
             updateUI(data.text);
+
+            if (data.text.toUpperCase().includes("REQUEST-ROLL") || data.text.toUpperCase().includes("D20")) {
+                document.getElementById("dice-container").style.display = "block";
+                // isWaitingForRoll = true;
+                // handleDiceRoll();
+            }
         } catch (err) {
             console.error("Error in sendToBackend:", err);
         }
