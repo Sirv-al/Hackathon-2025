@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- GAME LOGIC SETUP ---
-    const aiDisabled = true;
+    const aiDisabled = false;
 
     // DOM elements
     const diceContainer = document.getElementById("dice-container");
@@ -175,9 +175,7 @@ function parseHPCommands(responseText) {
     function toggleControls(isRolling) {
         isWaitingForRoll = isRolling;
         diceContainer.style.display = isRolling ? "block" : "none";
-        playerTextInput.disabled = isRolling;
-        playerInputForm.querySelector("button").disabled = isRolling;
-        if (!isRolling) playerTextInput.focus();
+
     }
 
     async function handlePlayerInput(e) {
@@ -290,7 +288,7 @@ function parseHPCommands(responseText) {
                 index++;
 
                 // Random delay to simulate natural typing speed
-                const delay = Math.random() * 20 + 25; // 25-75ms between characters
+                const delay = Math.random() * 10 + 10; // 25-75ms between characters
                 setTimeout(streamText, delay);
             }
         };
