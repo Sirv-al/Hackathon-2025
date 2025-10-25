@@ -227,7 +227,7 @@ function parseHPCommands(responseText) {
         } else if (selectedMap == "z") {
             const enemy = "z"
         } else {
-            const enemy = "Troll"
+            const enemy = "Human"
         }
 
         const payload = selectedMap + " Enemy: " + enemy;
