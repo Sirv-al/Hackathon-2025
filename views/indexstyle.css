@@ -1,0 +1,138 @@
+/* --- 1. IMPORT MEDIEVAL FONT --- */
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+/* --- 2. BODY & FONT SETUP --- */
+body {
+    /* Use the new font for everything! */
+    font-family: 'MedievalSharp', cursive;
+    font-size: 18px;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    color: #3a2a1a; /* Default text color (dark brown) */
+
+    /* --- Background Image --- */
+    background-image: url('bgimg.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+
+    /* --- Flexbox to center your form --- */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+/* --- 3. CREATION CONTAINER (The Parchment) --- */
+.creation-container {
+    background-color: rgba(253, 245, 230, 0.92); /* Opaque Parchment */
+    border: 10px solid #663f19; /* Thick "wooden" frame */
+    padding: 1.5em 2em;
+    border-radius: 5px;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6); /* Dark shadow */
+    max-height: 90vh; /* Ensure it fits on screen */
+    overflow-y: auto; /* Allow scrolling if content is too tall */
+}
+
+/* --- 4. TEXT & FORM LAYOUT --- */
+h1 {
+    margin-top: 0;
+    color: #5a3a22;
+}
+
+.form-group {
+    display: flex;
+    justify-content: center; /* Changed from space-between to center */
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+label {
+    font-size: 1.2em;
+    text-align: left;
+    margin-right: 15px;
+}
+
+/* --- 5. FIELDSET (For Ability Scores) --- */
+fieldset {
+    border: 6px solid #663f19;
+    border-radius: 3px;
+    margin: 25px 0;
+    padding: 10px 20px 20px 20px;
+}
+
+legend {
+    font-size: 1.5em;
+    padding: 0 10px;
+    color: #5a3a22;
+}
+
+/* --- 6. INPUT STYLING (Professional & Themed) --- */
+
+/* Style for Username */
+input[type="text"] {
+    font-family: 'MedievalSharp', cursive; /* Use theme font */
+    font-size: 1.1em;
+    border: 2px solid #8b4513;
+    background-color: #fdf5e6; /* Light parchment */
+    color: #3a2a1a;
+    padding: 10px;
+    border-radius: 2px;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+    flex-grow: 1; /* Allow it to fill space */
+    text-align: center;
+    width: 150px; /* Give it a base width */
+}
+
+/* Style for STR, DEX, INT */
+    input[type="number"] {
+        font-family: Arial, sans-serif; /* CRITICAL: Use a readable font for numbers */
+        font-weight: bold;
+        font-size: 1.2em;
+        color: #3a2a1a;
+        background-color: #fdf5e6; /* Light parchment */
+        border: 2px solid #5a3a22; /* Darker border */
+        padding: 8px;
+        border-radius: 2px;
+        box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+
+        width: 80px; /* Fixed width for alignment */
+        text-align: center;
+
+        /* --- Hide the modern spinner buttons --- */
+        -moz-appearance: textfield; /* Firefox */
+    }
+
+/* Webkit (Chrome, Safari) */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+/* --- 7. BUTTONS --- */
+button {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.4em;
+    font-weight: bold;
+    background-color: #8b4513; /* "Saddle Brown" button */
+    color: #fdf5e6;
+    border: 2px solid #5a3a22;
+    padding: 15px 30px;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #a0522d; /* Lighter brown on hover */
+}
+
