@@ -8,24 +8,33 @@ const MAP_SETTINGS = {
         cameraPos: { x: -5.16 , y: 1.14, z: 9.6 },
         ambient: { color: 0xffd4a3, intensity: 0.4 },
         sun: { color: 0xff7e47, intensity: 1.2, pos: [-1, 0.5, -1] },
+        extraLights: [
+            { type: 'PointLight', color: 0xffaa33, intensity: 1, pos: [0, 5, 0] }
+        ],
         sky: { color: 0x5b8dff, intensity: 0.4, pos: [1, 1, 1] },
         ground: { color: 0xff9666, intensity: 0.3, pos: [0, -1, 0] },
         toneMappingExposure: 0.8,
         bgGradient: ['#ff7e47', '#2c1810'] // sunset
     },
     cave: {
-        cameraPos: { x: 0, y: 10, z: 20 },
-        ambient: { color: 0x222244, intensity: 0.3 },
-        sun: { color: 0x8888ff, intensity: 0.4, pos: [0, 1, 0] },
-        sky: { color: 0x223366, intensity: 0.2, pos: [1, 1, 1] },
-        ground: { color: 0x110000, intensity: 0.2, pos: [0, -1, 0] },
-        toneMappingExposure: 0.4,
-        bgGradient: ['#1a1a2e', '#000000'] // dark blue to black
+        cameraPos: { x: 10, y: 70, z: 20 },
+        ambient: { color: 0xffffff, intensity: 0.5 },
+        sun: { color: 0xfff4c2, intensity: 1.0, pos: [1, 1, 0.5] },
+        extraLights: [
+            { type: 'PointLight', color: 0xffaa33, intensity: 100, pos: [0, 5, 0] }
+        ],
+        sky: { color: 0x99ccff, intensity: 0.5, pos: [0, 1, 1] },
+        ground: { color: 0xffe0b2, intensity: 0.4, pos: [0, -1, 0] },
+        toneMappingExposure: 1.0,
+        bgGradient: ['#e0c97f', '#b0975a'] // golden
     },
     castle: {
         cameraPos: { x: -0.96, y: 10, z: 21.37 },
         ambient: { color: 0xffffff, intensity: 0.5 },
         sun: { color: 0xfff4c2, intensity: 1.0, pos: [1, 1, 0.5] },
+        extraLights: [
+            { type: 'PointLight', color: 0xffaa33, intensity: 100, pos: [0, 5, 0] }
+        ],
         sky: { color: 0x99ccff, intensity: 0.5, pos: [0, 1, 1] },
         ground: { color: 0xffe0b2, intensity: 0.4, pos: [0, -1, 0] },
         toneMappingExposure: 1.0,
@@ -35,6 +44,9 @@ const MAP_SETTINGS = {
         cameraPos: { x: -1.23, y: 12.83, z: 21.41 },
         ambient: { color: 0xf8dcb8, intensity: 0.45 },
         sun: { color: 0xffd08a, intensity: 1.1, pos: [-1, 0.6, -0.3] },
+        extraLights: [
+            { type: 'PointLight', color: 0xffaa33, intensity: 1, pos: [0, 5, 0] }
+        ],
         sky: { color: 0x87ceeb, intensity: 0.5, pos: [0.5, 1, 0.8] },
         ground: { color: 0xffbb88, intensity: 0.3, pos: [0, -1, 0] },
         toneMappingExposure: 0.9,
@@ -132,10 +144,10 @@ switch (mapType) {
         modelPath = '/models/knightbattle.glb';
         break;
     case 'cave':
-        modelPath = '/models/cave.glb';
+        modelPath = '/models/watcher_cave.glb';
         break;
     case 'castle':
-        modelPath = '/models/medieval_door.glb';
+        modelPath = '/models/low_poly_castle.glb';
         break;
     default:
         modelPath = '/models/medieval_town_two.glb';
@@ -147,8 +159,10 @@ loader.load(
     function (gltf) {
         console.log(`Map model (${mapType}) loaded successfully`);
 
-        // --- same optimization code you already have ---
-        gltf.scene.traverse(function(node) {
+        const model = gltf.scene;
+
+        // --- Optimization for all meshes ---
+        model.traverse(function(node) {
             if (node.isMesh) {
                 if (node.material) {
                     node.material.roughness = 0.5;
@@ -165,21 +179,27 @@ loader.load(
             }
         });
 
-        gltf.scene.position.set(0, 0, 0);
-        scene.add(gltf.scene);
+        // --- Scale models per type ---
+        switch (mapType) {
+            case 'cave':
+                model.scale.set(0.1, 0.1, 0.1); // shrink cave
+                break;
+            case 'castle':
+                model.scale.set(1, 1, 1);       // enlarge castle
+                break;
+            case 'medieval_town_two':
+                model.scale.set(1.2, 1.2, 1.2); // slightly bigger town
+                break;
+            default:
+                model.scale.set(1, 1, 1);       // default scale
+                break;
+        }
 
-        // Center the camera on the model
-        const box = new THREE.Box3().setFromObject(gltf.scene);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        // camera.position.set(
-        //     center.x + maxDim * 0.5,
-        //     center.y + maxDim * 0.3,
-        //     center.z + maxDim * 0.5
-        // );
-        // orbit.target.copy(center);
-        orbit.target.set(0, 0, 0); // Or some map-specific target if needed
+        model.position.set(0, 0, 0);
+        scene.add(model);
+
+        // Keep orbit target at scene center
+        orbit.target.set(0, 0, 0);
         orbit.update();
     },
     function (progress) {
@@ -189,7 +209,6 @@ loader.load(
         console.error('Error loading map:', error);
     }
 );
-
 
     // Setup sunset lighting
     
@@ -213,6 +232,34 @@ loader.load(
     const groundLight = new THREE.DirectionalLight(settings.ground.color, settings.ground.intensity);
     groundLight.position.set(...settings.ground.pos);
     scene.add(groundLight);
+
+    // Add extra map-specific lights
+    if (settings.extraLights && settings.extraLights.length) {
+        settings.extraLights.forEach(lightConfig => {
+            let light;
+            switch (lightConfig.type) {
+                case 'DirectionalLight':
+                    light = new THREE.DirectionalLight(lightConfig.color, lightConfig.intensity);
+                    break;
+                case 'PointLight':
+                    light = new THREE.PointLight(lightConfig.color, lightConfig.intensity, 100);
+                    break;
+                case 'SpotLight':
+                    light = new THREE.SpotLight(lightConfig.color, lightConfig.intensity);
+                    light.angle = Math.PI / 6; // adjust for spotlight
+                    light.penumbra = 0.2;
+                    break;
+                default:
+                    console.warn('Unknown light type:', lightConfig.type);
+            }
+            if (light) {
+                light.position.set(...lightConfig.pos);
+                light.castShadow = true;
+                scene.add(light);
+            }
+        });
+    }
+
 
     // Enable shadow rendering
     renderer.shadowMap.enabled = true;
