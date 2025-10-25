@@ -182,6 +182,16 @@ function parseHPCommands(responseText) {
         e.preventDefault();
         const inputText = playerTextInput.value.trim();
 
+<<<<<<< HEAD
+
+
+        if (!inputText || isWaitingForRoll) {
+            return;
+        }
+
+        // Display player's action in their speech bubble
+=======
+>>>>>>> 81a2544560bcf7a988f16d4387936148d71a6954
         speechBubbleEl.innerHTML = `<p><strong>You:</strong> ${inputText}</p>`;
         playerTextInput.value = "";
 
