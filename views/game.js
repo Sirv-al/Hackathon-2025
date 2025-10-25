@@ -322,8 +322,26 @@ function parseHPCommands(responseText) {
             }
         }
         
-        // 1. Update Avatar Response (Main narrative)
-        avatarResponseEl.innerHTML = `<p><strong>Game Master:</strong> ${displayText}</p>`;
+        // Clear previous content and set up streaming
+        avatarResponseEl.innerHTML = '<p><strong>Game Master:</strong> </p>';
+        const textContainer = avatarResponseEl.querySelector('p');
+        
+        // Stream the text character by character
+        let index = 0;
+        const streamText = () => {
+            if (index < displayText.length) {
+                // Add next character (or small chunk)
+                textContainer.innerHTML = `<strong>Game Master:</strong> ${displayText.substring(0, index + 1)}`;
+                index++;
+                
+                // Random delay to simulate natural typing speed
+                const delay = Math.random() * 20 + 25; // 25-75ms between characters
+                setTimeout(streamText, delay);
+            }
+        };
+        
+        // Start streaming after a brief pause
+        setTimeout(streamText, 100);
     }
 
 
