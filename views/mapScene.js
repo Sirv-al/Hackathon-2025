@@ -257,7 +257,6 @@ loader.load(
     });
     resizeObserver.observe(container);
 
-    const cameraDebugEl = document.getElementById('camera-debug');
 
     // Optimized animation loop with frame rate control
     let frameCount = 0;
