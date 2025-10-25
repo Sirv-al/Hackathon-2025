@@ -257,7 +257,6 @@ loader.load(
     });
     resizeObserver.observe(container);
 
-    const cameraDebugEl = document.getElementById('camera-debug');
 
     const cameraDebugEl = document.getElementById('camera-debug');
 
