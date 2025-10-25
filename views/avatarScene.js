@@ -32,9 +32,6 @@ export function initAvatarScene(containerId) {
     renderer.domElement.style.height = '100%';
     container.appendChild(renderer.domElement);
 
-    // Animation mixer
-    let mixer;
-
     const loader = new GLTFLoader();
     const orbit = new OrbitControls(camera, renderer.domElement);
     orbit.enableZoom = false; // Disable zooming for the small container
@@ -58,6 +55,11 @@ export function initAvatarScene(containerId) {
     orbit.maxAzimuthAngle = 0.5;
     orbit.update();
 
+    // Animation mixer
+    let mixer;
+    let animations = [];
+    let currentAnimationAction = null;
+
     // Load the avatar model
     loader.load(
         "/models/GreenWizardAvatar.glb",
@@ -70,6 +72,7 @@ export function initAvatarScene(containerId) {
 
             // Setup animation mixer
             mixer = new THREE.AnimationMixer(gltf.scene);
+            animations = gltf.animations;
             
             // Create compact animation controls
             const controlsDiv = document.createElement('div');
@@ -173,9 +176,53 @@ export function initAvatarScene(containerId) {
 
     animate();
 
-    // Return cleanup function
-    return () => {
-        resizeObserver.disconnect();
-        container.innerHTML = '';
+    function playRandomAnimation() {
+        if (!mixer || animations.length === 0) return;
+
+        // Stop current animation
+        if (currentAnimationAction) {
+            currentAnimationAction.stop();
+        }
+        
+        // Select random animation
+        const randomIndex = Math.floor(Math.random() * animations.length);
+        const randomClip = animations[randomIndex];
+        
+        // Play the animation
+        currentAnimationAction = mixer.clipAction(randomClip);
+        currentAnimationAction.reset();
+        currentAnimationAction.play();
+        
+        return randomClip.name;
+    }
+
+    // Function to play a specific animation by name
+    function playAnimationByName(animationName) {
+        if (!mixer || animations.length === 0) return;
+        
+        // Stop current animation
+        if (currentAnimationAction) {
+            currentAnimationAction.stop();
+        }
+        
+        // Find the animation by name
+        const clip = animations.find(anim => anim.name === animationName);
+        if (clip) {
+            currentAnimationAction = mixer.clipAction(clip);
+            currentAnimationAction.reset();
+            currentAnimationAction.play();
+            return true;
+        }
+        return false;
+    }
+
+    // Return public methods
+    return {
+        playRandomAnimation,
+        playAnimationByName,
+        cleanup: () => {
+            resizeObserver.disconnect();
+            container.innerHTML = '';
+        }
     };
 }
