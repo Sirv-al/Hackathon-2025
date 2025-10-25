@@ -26,10 +26,16 @@ export function initMapScene(containerId) {
     const camera = new THREE.PerspectiveCamera(45, aspect, 1, 5000);
     
     const renderer = new THREE.WebGLRenderer({ 
-        antialias: false,
+        antialias: true,
         alpha: true,
         powerPreference: "high-performance"
     });
+    
+    // Enable physically correct lighting
+    renderer.physicallyCorrectLights = true;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.8; // Adjust for sunset exposure
 
     // Set renderer size and style
     renderer.setSize(width, height);
@@ -113,17 +119,59 @@ export function initMapScene(containerId) {
         }
     );
 
-    // Setup lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    // Setup sunset lighting
+    
+    // Warm ambient light (sunset glow)
+    const ambientLight = new THREE.AmbientLight(0xffd4a3, 0.4); // Warm, dim ambient light
     scene.add(ambientLight);
 
-    const directLight = new THREE.DirectionalLight(0xFFFFFF, 1);
-    directLight.position.set(1, 1, 1);
-    directLight.castShadow = true;
-    scene.add(directLight);
+    // Main sunset directional light (sun)
+    const sunLight = new THREE.DirectionalLight(0xff7e47, 1.2); // Orange-red sunlight
+    sunLight.position.set(-1, 0.5, -1); // Position for sunset (from western horizon)
+    sunLight.castShadow = true;
+    
+    // Enhance shadow quality
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 500;
+    sunLight.shadow.bias = -0.0001;
+    
+    scene.add(sunLight);
 
-    // Set background transparency
-    renderer.setClearColor(0x000000, 0);
+    // Secondary fill light (sky light)
+    const skyLight = new THREE.DirectionalLight(0x5b8dff, 0.4); // Blue-ish sky light
+    skyLight.position.set(1, 1, 1);
+    scene.add(skyLight);
+
+    // Ground bounce light (warm reflection)
+    const groundLight = new THREE.DirectionalLight(0xff9666, 0.3); // Warm bounce light
+    groundLight.position.set(0, -1, 0);
+    scene.add(groundLight);
+
+    // Enable shadow rendering
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // Set background with subtle sunset gradient
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+    
+    // Create subtle gradient background
+    const canvas = document.createElement('canvas');
+    canvas.width = 2;
+    canvas.height = 2;
+    
+    const context = canvas.getContext('2d');
+    const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#ff7e47'); // Sunset orange at top
+    gradient.addColorStop(1, '#2c1810'); // Dark warm color at bottom
+    
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    scene.background = texture;
 
     // Handle container resize
     function onResize() {
