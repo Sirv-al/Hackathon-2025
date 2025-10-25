@@ -97,16 +97,16 @@ document.addEventListener("DOMContentLoaded", () => {
     function updatePlayerHP(newHp) {
         // Ensure HP doesn't go below 0 or above max HP
         playerData.hp = Math.max(0, Math.min(newHp, playerData.maxHp));
-        
+
         // Update the UI
         hpEl.textContent = playerData.hp;
-        
+
         // Save updated player data to localStorage
         localStorage.setItem("playerData", JSON.stringify(playerData));
-        
+
         // Log the HP change
         updateLog(`Your HP is now ${playerData.hp}/${playerData.maxHp}`, "System");
-        
+
         // Check for death
         if (playerData.hp <= 0) {
             updateLog("You have been defeated! The adventure ends here.", "System");
@@ -122,10 +122,10 @@ function parseHPCommands(responseText) {
     const hpRegex = /HP:\s*(\d+)/gi;
     const damageRegex1 = /(\d+)\/100/gi;  // X/100 pattern
     const damageRegex2 = /(\d+)\s*POINTS?\s*OF\s*DMG/gi;  // X POINTS OF DMG pattern
-    
+
     let match;
     let hpUpdated = false;
-    
+
     // Original HP parsing
     while ((match = hpRegex.exec(responseText)) !== null) {
         const newHp = parseInt(match[1]);
@@ -134,7 +134,7 @@ function parseHPCommands(responseText) {
             hpUpdated = true;
         }
     }
-    
+
     // X/100 pattern
     while ((match = damageRegex1.exec(responseText)) !== null) {
         const damage = parseInt(match[1]);
@@ -144,7 +144,7 @@ function parseHPCommands(responseText) {
             hpUpdated = true;
         }
     }
-    
+
     // X POINTS OF DMG pattern
     while ((match = damageRegex2.exec(responseText)) !== null) {
         const damage = parseInt(match[1]);
@@ -155,7 +155,7 @@ function parseHPCommands(responseText) {
             hpUpdated = true;
         }
     }
-    
+
     return hpUpdated;
 }
 
@@ -197,6 +197,8 @@ function parseHPCommands(responseText) {
         event.preventDefault();
         const inputText = playerTextInput.value.trim();
 
+        toggleControls(true);
+
         if (!inputText || isWaitingForRoll) {
             return;
         }
@@ -226,7 +228,7 @@ function parseHPCommands(responseText) {
         const roll = Math.floor(Math.random() * 20) + 1;
 
         // Get the reason for the roll from the UI
-
+        toggleControls(true)
         // Display the roll in the log
         updateLog(`You rolled a ${roll}".`, "System");
 
@@ -273,7 +275,7 @@ function parseHPCommands(responseText) {
         try {
             const res = await fetch('/ai_response', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -310,7 +312,7 @@ function parseHPCommands(responseText) {
     function updateUI(responseData) {
         // First, parse and handle any HP commands
         const hadHPCommand = parseHPCommands(responseData);
-        
+
         // If there were HP commands, remove them from the displayed text for cleaner output
         let displayText = responseData;
         if (hadHPCommand) {
@@ -320,11 +322,11 @@ function parseHPCommands(responseText) {
                 displayText = "Your health has been updated.";
             }
         }
-        
+
         // Clear previous content and set up streaming
         avatarResponseEl.innerHTML = '<p><strong>Game Master:</strong> </p>';
         const textContainer = avatarResponseEl.querySelector('p');
-        
+
         // Stream the text character by character
         let index = 0;
         const streamText = () => {
@@ -332,13 +334,13 @@ function parseHPCommands(responseText) {
                 // Add next character (or small chunk)
                 textContainer.innerHTML = `<strong>Game Master:</strong> ${displayText.substring(0, index + 1)}`;
                 index++;
-                
+
                 // Random delay to simulate natural typing speed
                 const delay = Math.random() * 20 + 25; // 25-75ms between characters
                 setTimeout(streamText, delay);
             }
         };
-        
+
         // Start streaming after a brief pause
         setTimeout(streamText, 100);
     }

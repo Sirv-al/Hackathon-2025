@@ -40,6 +40,12 @@
             background-color: rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
+        #monster-container{
+            position: absolute; /* Required for positioning */
+            top: 0;
+            left: 0;
+            width: 300px;
+        }
 
         /* This is the "bare bones box" style for all UI widgets.
           They have a white background, black border, and are positioned absolutely.
@@ -86,7 +92,7 @@
             overflow: hidden;
             width: 100%;
         }
-        
+
         /* Remove any paragraph margins in the avatar container */
         #avatar-container p {
             display: none;
@@ -149,8 +155,8 @@
         <!-- Avatar -->
         <div id="avatar-container">
             <p>Three.js Avatar will load here.</p>
-        
-        
+
+
         </div>
 
         <!-- Avatar Response -->
@@ -170,12 +176,20 @@
         </div>
 
         <!-- Dice -->
-        <div id="dice-container">
-            <button id="roll-d20-button">Roll d20</button>
+<div id="dice-container">
+            <p id="dice-reason">Roll for Initiative!</p>
+
+            <div id="dice-visual-container">
+                <button id="roll-d20-button"> <img id="dice-gif" src="dice-roll.gif" alt="Dice Rolling"></button>
+            </div>
         </div>
 
     </div>
+    </div>
+        <div id = "monster-container" class="widget">
+        <h2 id="player-username">Loading...</h2>
 
+    </div>
 
     <!-- Stats Panel Widget (Bottom Left) -->
     <div id="stats-panel" class="widget">
@@ -222,7 +236,8 @@
                 <button type="submit">Send</button>
             </form>
         </div>
-    </div>
+
+
 
 
     <!--
@@ -232,22 +247,22 @@
     -->
     <script type="module">
         import { initAvatarScene } from './avatarScene.js';
-        
+
         // Initialize the avatar scene in the container
         document.addEventListener('DOMContentLoaded', () => {
             const cleanup = initAvatarScene('avatar-container');
-            
+
             // Clean up when needed (page unload)
             window.addEventListener('unload', cleanup);
         });
     </script>
     <script type="module">
         import { initMapScene } from './mapScene.js';
-        
+
         // Initialize the map scene in the container
         document.addEventListener('DOMContentLoaded', () => {
             const cleanup = initMapScene('map-container');
-            
+
             // Clean up when needed (page unload)
             window.addEventListener('unload', cleanup);
         });
@@ -264,7 +279,7 @@
 
     <!-- Import your avatar scene module -->
     <script type="module" src="avatarScene.js"></script>
-    
+
     <script src="game.js"></script>
 
 </body>
