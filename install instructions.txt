@@ -1,0 +1,13 @@
+Start project:
+npm init -y
+npm install express
+npm install dotenv
+
+To install gcloud:
+
+https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe
+Make sure to run after to sign in.
+
+In VS terminal:
+cmd
+gcloud auth application-default login
