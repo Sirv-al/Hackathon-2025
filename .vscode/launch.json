@@ -1,0 +1,14 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Open start_screen.html",
+            "file": "c:\\Users\\fisay\\Documents\\Hackathon\\Hackathon-2025\\views\\start_screen.html"
+        }
+    ]
+}
