@@ -1,6 +1,8 @@
 // Wait for the HTML document to be fully loaded before running the script
 document.addEventListener("DOMContentLoaded", () => {
 
+    const aiDisabled = true;
+
     // --- 1. Get All DOM Elements ---
     // Left Column
     const mapSelect = document.getElementById("map-select");
@@ -265,6 +267,9 @@ function parseHPCommands(responseText) {
      */
 
     async function sendToAI(endpoint, payload) {
+        if (aiDisabled) {
+            return
+        }
         console.log("Sent");
         try {
             const res = await fetch('/ai_response', {
