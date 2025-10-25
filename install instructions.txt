@@ -7,11 +7,4 @@ npm install --save-dev concurrently
 This will run vite and nodeJS server simultaneously
 to run: npm run dev
 
-To install gcloud:
-
-https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe
-Make sure to run after to sign in.
-
-In VS terminal:
-cmd
-gcloud auth application-default login
+npm install openai
