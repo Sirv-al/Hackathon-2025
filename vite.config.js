@@ -1,20 +1,17 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  root: 'views',
+  root: 'views', // <-- point to the folder containing index.html
   publicDir: '../public',
-  assetsInclude: ['**/*.glb'],
+  assetsInclude: ['**/*.glb'],  // Add GLB files to the asset include list
   build: {
-    outDir: '../dist',
+    outDir: '../dist', // optional: where build output goes
     emptyOutDir: true,
-    // Add these for better production builds
-    minify: 'esbuild',
-    sourcemap: false
   },
   server: {
-    port: 3000,
+    port: 3000, // Vite dev server port
     proxy: {
-      '/ai_response': 'http://localhost:8080'
+      '/ai_response': 'http://localhost:8080'  // Proxy API requests to Node.js server
     }
   }
 })
