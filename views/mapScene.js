@@ -22,18 +22,25 @@ export function initMapScene(containerId) {
     const height = container.clientHeight;
     const aspect = width / height;
     
-    // Setup camera with better parameters for map viewing
-    const camera = new THREE.PerspectiveCamera(45, aspect, 1, 5000);
+    // Setup camera with optimized parameters
+    const camera = new THREE.PerspectiveCamera(45, aspect, 1, 1000); // Reduced far plane
     
+    // Optimized renderer settings
     const renderer = new THREE.WebGLRenderer({ 
         antialias: false,
         alpha: true,
-        powerPreference: "high-performance"
+        powerPreference: "high-performance",
+        precision: 'mediump',
+        depth: true,
+        stencil: false
     });
 
     // Set renderer size and style
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
+    renderer.shadowMap.enabled = false; // Disable shadows for performance
     container.appendChild(renderer.domElement);
 
     // Setup controls
@@ -57,7 +64,24 @@ export function initMapScene(containerId) {
     camera.lookAt(0, 0, 0);
     orbit.update();
 
-    // Load the map model
+    // Material optimization function
+    function optimizeMaterial(material) {
+        material.precision = 'mediump';
+        material.roughness = 0.8; // Higher roughness = better performance
+        material.metalness = 0.1;
+        material.envMapIntensity = 1.0;
+        
+        // Disable expensive features
+        material.aoMapIntensity = 0;
+        if (material.normalScale) {
+            material.normalScale.set(0, 0);
+        }
+        
+        material.needsUpdate = true;
+        return material;
+    }
+
+    // Load the map model with optimizations
     loader.load(
         "/models/medievaltownmap.glb",
         function (gltf) {
@@ -66,19 +90,37 @@ export function initMapScene(containerId) {
             // Optimize and enhance the model
             gltf.scene.traverse(function(node) {
                 if (node.isMesh) {
-                    if (node.material) {
-                        node.material.roughness = 0.5;
-                        node.material.metalness = 0.2;
-                        node.material.envMapIntensity = 1.5;
-                        node.material.needsUpdate = true;
-                    }
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                    
+                    // Geometry optimizations
                     if (node.geometry) {
                         node.geometry.computeBoundingSphere();
                         node.geometry.computeBoundingBox();
+                        
+                        // Remove unnecessary attributes
+                        if (node.geometry.hasAttribute('color')) {
+                            node.geometry.deleteAttribute('color');
+                        }
                     }
+                    
+                    // Material optimizations
+                    if (node.material) {
+                        // Use simpler materials for better performance
+                        if (Array.isArray(node.material)) {
+                            node.material.forEach(mat => optimizeMaterial(mat));
+                        } else {
+                            optimizeMaterial(node.material);
+                        }
+                    }
+                    
+                    // Optimize shadows and rendering
+                    node.castShadow = false; // Disable casting shadows
+                    node.receiveShadow = false; // Disable receiving shadows
+                    
+                    // Enable frustum culling
+                    node.frustumCulled = true;
+                    
+                    // Freeze matrix for static objects
+                    node.matrixAutoUpdate = false;
+                    node.updateMatrix();
                 }
             });
 
@@ -108,13 +150,13 @@ export function initMapScene(containerId) {
         }
     );
 
-    // Setup lighting
+    // Optimized lighting setup
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
     const directLight = new THREE.DirectionalLight(0xFFFFFF, 1);
     directLight.position.set(1, 1, 1);
-    directLight.castShadow = true;
+    directLight.castShadow = false; // Disable shadows for performance
     scene.add(directLight);
 
     // Set background transparency
@@ -139,21 +181,53 @@ export function initMapScene(containerId) {
     });
     resizeObserver.observe(container);
 
-    // Animation loop
-    function animate() {
+    // Optimized animation loop with frame rate control
+    let frameCount = 0;
+    const targetFPS = 60;
+    let then = performance.now();
+    const interval = 1000 / targetFPS;
+
+    function animate(now) {
         requestAnimationFrame(animate);
+        
+        // Frame rate control
+        const delta = now - then;
+        if (delta < interval) return;
+        
+        then = now - (delta % interval);
+        
+        // Only update if controls have changed or needed
         orbit.update();
         renderer.render(scene, camera);
         labelRenderer.render(scene, camera);
+        frameCount++;
     }
 
     animate();
 
-    // Return cleanup function
+    // Return optimized cleanup function
     return () => {
         resizeObserver.disconnect();
+        
+        // Properly dispose of geometries and materials
+        scene.traverse(object => {
+            if (object.isMesh) {
+                if (object.geometry) {
+                    object.geometry.dispose();
+                }
+                if (object.material) {
+                    if (Array.isArray(object.material)) {
+                        object.material.forEach(material => material.dispose());
+                    } else {
+                        object.material.dispose();
+                    }
+                }
+            }
+        });
+        
         renderer.dispose();
         orbit.dispose();
+        labelRenderer.domElement.remove();
         container.innerHTML = '';
     };
 }
