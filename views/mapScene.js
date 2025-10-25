@@ -3,9 +3,49 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+const MAP_SETTINGS = {
+    knight: {
+        cameraPos: { x: 0, y: 20, z: 40 },
+        ambient: { color: 0xffd4a3, intensity: 0.4 },
+        sun: { color: 0xff7e47, intensity: 1.2, pos: [-1, 0.5, -1] },
+        sky: { color: 0x5b8dff, intensity: 0.4, pos: [1, 1, 1] },
+        ground: { color: 0xff9666, intensity: 0.3, pos: [0, -1, 0] },
+        toneMappingExposure: 0.8,
+        bgGradient: ['#ff7e47', '#2c1810'] // sunset
+    },
+    cave: {
+        cameraPos: { x: 0, y: 10, z: 20 },
+        ambient: { color: 0x222244, intensity: 0.3 },
+        sun: { color: 0x8888ff, intensity: 0.4, pos: [0, 1, 0] },
+        sky: { color: 0x223366, intensity: 0.2, pos: [1, 1, 1] },
+        ground: { color: 0x110000, intensity: 0.2, pos: [0, -1, 0] },
+        toneMappingExposure: 0.4,
+        bgGradient: ['#1a1a2e', '#000000'] // dark blue to black
+    },
+    castle: {
+        cameraPos: { x: -45, y: 30, z: 20 },
+        ambient: { color: 0xffffff, intensity: 0.5 },
+        sun: { color: 0xfff4c2, intensity: 1.0, pos: [1, 1, 0.5] },
+        sky: { color: 0x99ccff, intensity: 0.5, pos: [0, 1, 1] },
+        ground: { color: 0xffe0b2, intensity: 0.4, pos: [0, -1, 0] },
+        toneMappingExposure: 1.0,
+        bgGradient: ['#e0c97f', '#b0975a'] // golden
+    },
+    medieval_town_two: {
+        cameraPos: { x: 0, y: 25, z: 50 },
+        ambient: { color: 0xf8dcb8, intensity: 0.45 },
+        sun: { color: 0xffd08a, intensity: 1.1, pos: [-1, 0.6, -0.3] },
+        sky: { color: 0x87ceeb, intensity: 0.5, pos: [0.5, 1, 0.8] },
+        ground: { color: 0xffbb88, intensity: 0.3, pos: [0, -1, 0] },
+        toneMappingExposure: 0.9,
+        bgGradient: ['#ffe5b4', '#c98c56'] // warm daylight
+    }
+};
+
+
 const loader = new GLTFLoader();
 
-export function initMapScene(containerId) {
+export function initMapScene(containerId, mapType = 'knight') {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error('Container not found:', containerId);
@@ -16,6 +56,8 @@ export function initMapScene(containerId) {
     container.innerHTML = '';
     
     const scene = new THREE.Scene();
+
+    const settings = MAP_SETTINGS[mapType] || MAP_SETTINGS['knight'];
     
     // Get container dimensions
     const width = container.clientWidth;
@@ -35,7 +77,7 @@ export function initMapScene(containerId) {
     renderer.physicallyCorrectLights = true;
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.8; // Adjust for sunset exposure
+    renderer.toneMappingExposure = settings.toneMappingExposure;; // Adjust for sunset exposure
 
     // Set renderer size and style
     renderer.setSize(width, height);
@@ -49,8 +91,18 @@ export function initMapScene(containerId) {
 
     // Setup controls
     const orbit = new OrbitControls(camera, renderer.domElement);
-    orbit.maxDistance = 100;
+    if (mapType === 'cave') {
+    orbit.maxDistance = 40;
     orbit.minDistance = 5;
+    } else if (mapType === 'castle') {
+        orbit.maxDistance = 120;
+        orbit.minDistance = 20;
+    } else {
+        orbit.maxDistance = 80;
+        orbit.minDistance = 10;
+    }
+
+    
     orbit.maxPolarAngle = Math.PI / 2;
     orbit.enableDamping = true;
     orbit.dampingFactor = 0.05;
@@ -64,89 +116,100 @@ export function initMapScene(containerId) {
     container.appendChild(labelRenderer.domElement);
 
     // Initial camera position
-    camera.position.set(0, 20, 40);
+    camera.position.set(
+    settings.cameraPos.x,
+    settings.cameraPos.y,
+    settings.cameraPos.z
+);
     camera.lookAt(0, 0, 0);
     orbit.update();
 
-    // Load the map model
-    loader.load(
-        "/models/medieval_town_two.glb",
-        function (gltf) {
-            console.log('Map model loaded successfully');
-            
-            // Optimize and enhance the model
-            gltf.scene.traverse(function(node) {
-                if (node.isMesh) {
-                    if (node.material) {
-                        node.material.roughness = 0.5;
-                        node.material.metalness = 0.2;
-                        node.material.envMapIntensity = 1.5;
-                        node.material.needsUpdate = true;
-                    }
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                    
-                    if (node.geometry) {
-                        node.geometry.computeBoundingSphere();
-                        node.geometry.computeBoundingBox();
-                    }
-                }
-            });
+    // Choose model path based on map type
+let modelPath;
+switch (mapType) {
+    case 'knight':
+        modelPath = '/models/knightbattle.glb';
+        break;
+    case 'cave':
+        modelPath = '/models/cave.glb';
+        break;
+    case 'castle':
+        modelPath = '/models/medieval_door.glb';
+        break;
+    default:
+        modelPath = '/models/medieval_town_two.glb';
+}
 
-            gltf.scene.position.set(0, 0, 0);
-            scene.add(gltf.scene);
-            
-            // Center camera on model
-            const box = new THREE.Box3().setFromObject(gltf.scene);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            
-            const maxDim = Math.max(size.x, size.y, size.z);
-            camera.position.set(
-                center.x + maxDim * 0.5,
-                center.y + maxDim * 0.3,
-                center.z + maxDim * 0.5
-            );
-            
-            orbit.target.copy(center);
-            orbit.update();
-        },
-        function (progress) {
-            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
-        },
-        function (error) {
-            console.error('Error loading map:', error);
-        }
-    );
+// Load the selected model
+loader.load(
+    modelPath,
+    function (gltf) {
+        console.log(`Map model (${mapType}) loaded successfully`);
+
+        // --- same optimization code you already have ---
+        gltf.scene.traverse(function(node) {
+            if (node.isMesh) {
+                if (node.material) {
+                    node.material.roughness = 0.5;
+                    node.material.metalness = 0.2;
+                    node.material.envMapIntensity = 1.5;
+                    node.material.needsUpdate = true;
+                }
+                node.castShadow = true;
+                node.receiveShadow = true;
+                if (node.geometry) {
+                    node.geometry.computeBoundingSphere();
+                    node.geometry.computeBoundingBox();
+                }
+            }
+        });
+
+        gltf.scene.position.set(0, 0, 0);
+        scene.add(gltf.scene);
+
+        // Center the camera on the model
+        const box = new THREE.Box3().setFromObject(gltf.scene);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        camera.position.set(
+            center.x + maxDim * 0.5,
+            center.y + maxDim * 0.3,
+            center.z + maxDim * 0.5
+        );
+        orbit.target.copy(center);
+        orbit.update();
+    },
+    function (progress) {
+        console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+    },
+    function (error) {
+        console.error('Error loading map:', error);
+    }
+);
+
 
     // Setup sunset lighting
     
-    // Warm ambient light (sunset glow)
-    const ambientLight = new THREE.AmbientLight(0xffd4a3, 0.4); // Warm, dim ambient light
+        // --- Dynamic Lighting Setup based on Map ---
+    const ambientLight = new THREE.AmbientLight(settings.ambient.color, settings.ambient.intensity);
     scene.add(ambientLight);
 
-    // Main sunset directional light (sun)
-    const sunLight = new THREE.DirectionalLight(0xff7e47, 1.2); // Orange-red sunlight
-    sunLight.position.set(-1, 0.5, -1); // Position for sunset (from western horizon)
+    const sunLight = new THREE.DirectionalLight(settings.sun.color, settings.sun.intensity);
+    sunLight.position.set(...settings.sun.pos);
     sunLight.castShadow = true;
-    
-    // Enhance shadow quality
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.mapSize.set(2048, 2048);
     sunLight.shadow.camera.near = 0.5;
     sunLight.shadow.camera.far = 500;
     sunLight.shadow.bias = -0.0001;
-    
     scene.add(sunLight);
 
-    // Secondary fill light (sky light)
-    const skyLight = new THREE.DirectionalLight(0x5b8dff, 0.4); // Blue-ish sky light
-    skyLight.position.set(1, 1, 1);
+    const skyLight = new THREE.DirectionalLight(settings.sky.color, settings.sky.intensity);
+    skyLight.position.set(...settings.sky.pos);
     scene.add(skyLight);
 
-    // Ground bounce light (warm reflection)
-    const groundLight = new THREE.DirectionalLight(0xff9666, 0.3); // Warm bounce light
-    groundLight.position.set(0, -1, 0);
+    const groundLight = new THREE.DirectionalLight(settings.ground.color, settings.ground.intensity);
+    groundLight.position.set(...settings.ground.pos);
     scene.add(groundLight);
 
     // Enable shadow rendering
@@ -164,8 +227,8 @@ export function initMapScene(containerId) {
     
     const context = canvas.getContext('2d');
     const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#ff7e47'); // Sunset orange at top
-    gradient.addColorStop(1, '#2c1810'); // Dark warm color at bottom
+    gradient.addColorStop(0, settings.bgGradient[0]);
+    gradient.addColorStop(1, settings.bgGradient[1]);
     
     context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
