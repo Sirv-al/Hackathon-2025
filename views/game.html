@@ -125,31 +125,7 @@
             window.addEventListener('unload', cleanup);
         });
     </script>
-    <script type="module">
-        import { initMapScene } from './mapScene.js';
-
-        // Initialize the map scene in the container
-        document.addEventListener('DOMContentLoaded', () => {
-            const cleanup = initMapScene('map-container');
-
-            // Clean up when needed (page unload)
-            window.addEventListener('unload', cleanup);
-        });
-    </script>
-
-        <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
-        }
-    }
-    </script>
-
-    <!-- Import your avatar scene module -->
-    <script type="module" src="avatarScene.js"></script>
-
-    <script src="game.js"></script>
+    <script type="module" src="game.js"></script>
 
 </body>
 </html>
