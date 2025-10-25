@@ -197,8 +197,6 @@ function parseHPCommands(responseText) {
         event.preventDefault();
         const inputText = playerTextInput.value.trim();
 
-        toggleControls(true);
-
         if (!inputText || isWaitingForRoll) {
             return;
         }
