@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedMap = mapSelect.value.toLowerCase();
         if (cleanupMapScene) cleanupMapScene();
         cleanupMapScene = initMapScene(mapContainerId, selectedMap);
+        handleMapSelection();
     });
 
     // --- GAME LOGIC SETUP ---
@@ -45,6 +46,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerData = {};
     let isWaitingForRoll = false;
 
+        /**
+     * Initializes the game: loads player data, updates the UI,
+     * adds event listeners, and makes the first call to the backend.
+     */
+    function initGame() {
+        // Load player data from the previous page
+        if (!loadPlayerData()) {
+            // If data fails to load, send user back to creation page
+            window.location.href = "index.html";
+            return;
+        }
+
+        // Populate the stats panel
+        updateStatsPanel();
+
+        // Attach all event listeners
+        playerInputForm.addEventListener("submit", handlePlayerInput);
+        rollD20Button.addEventListener("click", handleDiceRoll);
+        // mapSubmitButton.addEventListener("click", handleMapSelection);
+
+        // Clear the log and speech bubble
+        gameLogEl.innerHTML = "";
+        speechBubbleEl.innerHTML = "";
+
+        // Send the initial data to the backend to get the starting scene
+        sendToAI("/start_game", { playerData });
+    }
     // --- FUNCTIONS ---
     function loadPlayerData() {
         try {
@@ -206,6 +234,7 @@ function parseHPCommands(responseText) {
         if (aiDisabled) {
             return
         }
+
         console.log("Sent");
         try {
             const res = await fetch('/ai_response', {

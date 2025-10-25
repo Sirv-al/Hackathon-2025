@@ -259,8 +259,6 @@ loader.load(
 
     const cameraDebugEl = document.getElementById('camera-debug');
 
-    const cameraDebugEl = document.getElementById('camera-debug');
-
     // Optimized animation loop with frame rate control
     let frameCount = 0;
     const targetFPS = 60;
