@@ -225,6 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Returned data:", data.text);
 
             updateUI(data.text);
+            
         } catch (err) {
             console.error("Error in sendToBackend:", err);
         }
@@ -238,87 +239,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateUI(responseData) {
         // 1. Update Avatar Response (Main narrative)
         avatarResponseEl.innerHTML = `<p><strong>Game Master:</strong> ${responseData}</p>`;
-    }
-
-    // --- 6. Mock Backend Function (FOR TESTING) ---
-
-    /**
-     * A mock function to simulate the Python backend.
-     * It returns a response object based on the player's action.
-     * DELETE OR REPLACE THIS with the real fetch call above.
-     */
-    async function mockBackendResponse(endpoint, payload) {
-        console.log("Sent to Mock Backend:", { endpoint, payload });
-
-        // Welcome message
-        if (endpoint === "/start_game") {
-            return {
-                avatar_response: `Welcome, ${playerData.username}! You awaken in a dark, damp cave. A faint light glows from a tunnel to your north. What do you do?`,
-                narrative: "Your adventure begins.",
-                stats_update: null,
-                dice_roll_request: null,
-                map_update: { x: 0, y: 0, location: "Starting Cave" }
-            };
-        }
-
-        // Handle a dice roll result
-        if (payload.dice_roll_result) {
-            if (payload.dice_roll_result.roll > 10) {
-                return {
-                    avatar_response: `You rolled a ${payload.dice_roll_result.roll} and succeeded! The goblin is surprised and fumbles his weapon. It's your turn!`,
-                    narrative: "You won the initiative roll.",
-                    stats_update: null,
-                    dice_roll_request: null
-                };
-            } else {
-                return {
-                    avatar_response: `You rolled a ${payload.dice_roll_result.roll} and failed... The goblin is too fast! It lunges at you, dealing 3 damage.`,
-                    narrative: "You lost the initiative roll.",
-                    stats_update: { hp: playerData.hp - 3 }, // Send new HP
-                    dice_roll_request: null
-                };
-            }
-        }
-
-        // Handle text input
-        const text = payload.player_text.toLowerCase();
-
-        if (text.includes("map") || text.includes("travel")) {
-             return {
-                avatar_response: `You are traveling to the ${mapSelect.options[mapSelect.selectedIndex].text}... You arrive.`,
-                narrative: "You have arrived at a new location.",
-                map_update: { x: 1, y: 1, location: mapSelect.value }
-            };
-        }
-
-        if (text.includes("look") || text.includes("north")) {
-            return {
-                avatar_response: "You walk north down the tunnel and see a goblin guarding a chest. He hasn't seen you yet.",
-                narrative: "A new challenge appears!",
-                dice_roll_request: {
-                    reason: "Roll for Stealth (Dexterity)"
-                }
-            };
-        }
-
-        if (text.includes("attack")) {
-            return {
-                avatar_response: "You charge the goblin! It snarls and draws its rusty knife. You must roll for initiative!",
-                narrative: "Combat has begun.",
-                avatar_animation: "attack_ready",
-                dice_roll_request: {
-                    reason: "Roll for Initiative (Dexterity)"
-                }
-            };
-        }
-
-        // Default response
-        return {
-            avatar_response: `I don't understand "${text}". Try 'look around', 'attack', or 'travel'.`,
-            narrative: null,
-            stats_update: null,
-            dice_roll_request: null
-        };
     }
 
     // --- 7. Start the Game! ---
