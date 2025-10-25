@@ -40,6 +40,12 @@
             background-color: rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
+        #monster-container{
+            position: absolute; /* Required for positioning */
+            top: 0;
+            left: 0;
+            width: 300px;
+        }
 
         /* This is the "bare bones box" style for all UI widgets.
           They have a white background, black border, and are positioned absolutely.
@@ -179,7 +185,11 @@
         </div>
 
     </div>
+    </div>
+        <div id = "monster-container" class="widget">
+        <h2 id="player-username">Loading...</h2>
 
+    </div>
 
     <!-- Stats Panel Widget (Bottom Left) -->
     <div id="stats-panel" class="widget">
@@ -226,7 +236,8 @@
                 <button type="submit">Send</button>
             </form>
         </div>
-    </div>
+
+
 
 
     <!--
