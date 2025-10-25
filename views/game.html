@@ -7,57 +7,83 @@
 
     <style>
         body {
-            background-color: #FFFFFF;
-            color: #000000;
             font-family: Arial, sans-serif;
             margin: 0;
             height: 100vh;
+            overflow: hidden; /* Prevents scrollbars */
+            background-color: #FFFFFF;
+            color: #000000;
         }
 
-        #game-container {
-            display: flex; /* Creates the two-column layout */
+        /* This is the main container. It will hold the 3D map as the background.
+          We use 'position: relative' so we can 'absolutely' position
+          all the UI widgets on top of it.
+        */
+        #map-container {
+            position: relative;
+            width: 100%;
             height: 100vh;
+            background-color: purple; /* Placeholder color as requested */
         }
 
-        /* Column Definitions */
-        #left-column {
-            flex: 1; /* Takes up 1/3 of the space */
-            border: 1px solid black;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #right-column {
-            flex: 2; /* Takes up 2/3 of the space */
-            border: 1px solid black;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Panel Definitions */
-        .game-panel {
-            border: 1px solid black;
-            margin: 5px;
-        }
-
-        /* Make panels in the right column grow to fill space */
-        #right-column .game-panel {
+        /* This is the "bare bones box" style for all UI widgets.
+          They have a white background, black border, and are positioned absolutely.
+        */
+        .widget {
+            position: absolute;
+            background-color: #FFFFFF;
+            border: 1px solid #000000;
+            margin: 10px;
             padding: 5px;
         }
 
-        /* Specific Panel Sizing */
-        #map-container {
-            flex-grow: 1; /* Makes the map fill the available space in the left column */
+        /* --- Widget Positioning --- */
+
+        #top-right-widget {
+            top: 0;
+            right: 0;
+            width: 300px;
         }
 
-        #game-log {
-            flex-grow: 1; /* Makes the log fill the available space in the right column */
-            overflow-y: auto;
-            min-height: 100px;
+        #stats-panel {
+            bottom: 0;
+            left: 0;
+            width: 250px;
         }
+
+        #log-widget {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%); /* Center the widget */
+            width: 50%;
+            max-width: 700px;
+        }
+
+        /* --- Widget Content Styling --- */
 
         #avatar-container {
-            min-height: 200px;
+            min-height: 150px;
+            border-bottom: 1px solid black;
+        }
+        #avatar-response {
+            min-height: 50px;
+            border-bottom: 1px solid black;
+        }
+        #map-selector-container {
+            border-bottom: 1px solid black;
+        }
+
+        /* Game Log Styling */
+        #game-log {
+            height: 200px; /* Give the log a fixed height */
+            overflow-y: auto; /* Make it scrollable */
+            border-bottom: 1px solid black;
+            padding: 5px;
+        }
+
+        /* Hide the game log by default (as per new request) */
+        #game-log.hidden {
+            display: none;
         }
 
         /* Player Input Form */
@@ -70,91 +96,110 @@
 
         /* Dice Container (Hidden by default) */
         #dice-container {
-            display: none; /* Your game.js will change this to 'display: block;' */
+            display: none; /* game.js will change this to 'display: block;' */
+            padding: 10px;
         }
+
     </style>
 </head>
 <body>
 
-    <main id="game-container">
-
-        <div id="left-column">
-
-            <div id="map-selector-container" class="game-panel">
-                <label for="map-select">Choose a map:</label>
-                <select name="maps" id="map-select">
-                    <option value="forest">Dark Forest</option>
-                    <option value="cave">Goblin Cave</option>
-                    <option value="town">Village Square</option>
-                </select>
-                <button id="map-submit-button">Load Map</button>
-            </div>
-
-            <div id="map-container" class="game-panel">
-                <p>Three.js Map will load here.</p>
-            </div>
-
-            <div id="dice-container" class="game-panel">
-                <p id="dice-reason">Roll for Initiative!</p>
-                <button id="roll-d20-button">Roll d20</button>
-            </div>
-
-        </div>
-
-        <div id="right-column">
-
-            <div id="avatar-container" class="game-panel">
-                <p>Three.js Avatar will load here.</p>
-            </div>
-
-            <div id="avatar-response" class="game-panel">
-                <p><strong>Game Master:</strong> "Welcome, adventurer. What will you do?"</p>
-            </div>
-
-            <div id="game-log" class="game-panel">
-                <p>Game narrative and history will appear here...</p>
-            </div>
-
-            <div id="speech-bubble" class="game-panel">
-                <p><strong>You:</strong> "I look around."</p>
-            </div>
-
-            <div id="player-input-form-container" class="game-panel">
-                <form id="player-input-form">
-                    <input
-                        type="text"
-                        id="player-text-input"
-                        placeholder="What do you do?"
-                        autocomplete="off"
-                        required>
-                    <button type="submit">Send</button>
-                </form>
-            </div>
-
-            <div id="stats-panel" class="game-panel">
-                <h2 id="player-username">Loading...</h2>
-                <div>
-                    <strong>HP:</strong>
-                    <span id="player-hp">20</span> / <span id="player-max-hp">20</span>
-                </div>
-                <div>
-                    <strong>Strength:</strong>
-                    <span id="player-str">10</span>
-                </div>
-                <div>
-                    <strong>Dexterity:</strong>
-                    <span id="player-dex">10</span>
-                </div>
-                <div>
-                    <strong>Intelligence:</strong>
-                    <span id="player-int">10</span>
-                </div>
-            </div>
-
-        </div>
-
+    <!--
+      This is now the background. Your 'map.js' script will target this div.
+      All other UI elements are "on top" of this.
+    -->
+    <main id="map-container">
+        <!-- <p>Three.js Map will load here as the background.</p> -->
     </main>
 
+    <!--
+      This is a "widget container" for everything in the top right.
+    -->
+    <div id="top-right-widget" class="widget">
+
+        <!-- Avatar -->
+        <div id="avatar-container">
+            <p>Three.js Avatar will load here.</p>
+        </div>
+
+        <!-- Avatar Response -->
+        <div id="avatar-response">
+            <p><strong>Game Master:</strong> "Welcome, adventurer. What will you do?"</p>
+        </div>
+
+        <!-- Map Selector -->
+        <div id="map-selector-container">
+            <label for="map-select">Choose a map:</label>
+            <select name="maps" id="map-select">
+                <option value="forest">Dark Forest</option>
+                <option value="cave">Goblin Cave</option>
+                <option value="town">Village Square</option>
+            </select>
+            <button id="map-submit-button">Load Map</button>
+        </div>
+
+        <!-- Dice -->
+        <div id="dice-container">
+            <p id="dice-reason">Roll for Initiative!</p>
+            <button id="roll-d20-button">Roll d20</button>
+        </div>
+
+    </div>
+
+
+    <!-- Stats Panel Widget (Bottom Left) -->
+    <div id="stats-panel" class="widget">
+        <h2 id="player-username">Loading...</h2>
+        <div>
+            <strong>HP:</strong>
+            <span id="player-hp">20</span> / <span id="player-max-hp">20</span>
+        </div>
+        <div>
+            <strong>Strength:</strong>
+            <span id="player-str">10</span>
+        </div>
+        <div>
+            <strong>Dexterity:</strong>
+            <span id="player-dex">10</span>
+        </div>
+        <div>
+            <strong>Intelligence:</strong>
+            <span id="player-int">10</span>
+        </div>
+    </div>
+
+    <!-- Log and Input Widget (Bottom Middle) -->
+    <div id="log-widget" class="widget">
+        <!-- Game Log -->
+        <div id="game-log">
+            <p>Game narrative and history will appear here...</p>
+        </div>
+
+        <!-- Player Speech -->
+        <div id="speech-bubble">
+            <p><strong>You:</strong> "I look around."</p>
+        </div>
+
+        <!-- Player Input -->
+        <div id="player-input-form-container">
+            <form id="player-input-form">
+                <input
+                    type="text"
+                    id="player-text-input"
+                    placeholder="What do you do?"
+                    autocomplete="off"
+                    required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!--
+      JavaScript Files
+      - game.js: Your main logic.
+      - avatar.js / map.js: Modules for your teammate.
+    -->
     <script src="game.js"></script>
     <script type="module" src="avatar.js"></script>
     <script type="module" src="map.js"></script>

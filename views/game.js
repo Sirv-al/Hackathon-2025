@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             current_stats: playerData
         };
-        await sendToBackend("/player_action", payload);
+        await sendToBackend("/dice_roll", roll);
     }
 
     /**
