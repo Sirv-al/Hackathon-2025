@@ -1,0 +1,207 @@
+/* --- 1. IMPORT MEDIEVAL FONT --- */
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+/* --- 2. BODY & FONT SETUP --- */
+body {
+    /* Use the new font for everything! */
+    font-family: 'MedievalSharp', cursive;
+    font-size: 18px;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden; /* Prevents scrollbars */
+
+    /* Default text color (dark brown) */
+    color: #3a2a1a;
+
+    /* --- Background Image --- */
+
+}
+        #map-container {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 100vh;
+
+            background-color: rgba(0, 0, 0, 0.05);
+
+            overflow: hidden;
+
+        }
+/* --- 3. CORE GAME LAYOUT --- */
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none; /* Allow clicks to pass through to map */
+}
+
+#game-container > * {
+    pointer-events: auto; /* Re-enable clicks for game container children */
+}
+
+
+
+/* --- 4. WIDGET THEME (Parchment & Wood) --- */
+.widget {
+    position: absolute;
+    background-color: rgba(253, 245, 230, 0.92); /* Opaque Parchment */
+    border: 10px solid #663f19; /* Thick "wooden" frame */
+    margin: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.6); /* Dark shadow */
+    pointer-events: auto; /* Ensure widgets are clickable */
+    box-sizing: border-box; /* Include padding/border in width */
+}
+
+/* --- 5. WIDGET POSITIONING --- */
+#top-right-widget {
+    top: 0;
+    right: 0;
+    width: 300px;
+}
+
+#stats-panel {
+    bottom: 0;
+    left: 0;
+    width: 250px;
+}
+
+#log-widget {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%); /* Center the widget */
+    width: 50%;
+    max-width: 700px;
+}
+
+#monster-container {
+    top: 0;
+    left: 0;
+    width: 300px;
+}
+
+
+/* --- 6. WIDGET CONTENT & TYPOGRAPHY --- */
+h2 {
+    margin-top: 0;
+    color: #5a3a22; /* Medium brown for headers */
+}
+
+strong {
+    color: #5a3a22;
+}
+
+/* Themed horizontal dividers */
+#avatar-container,
+#avatar-response,
+#map-selector-container,
+#game-log {
+    border-bottom: 2px solid #8b4513; /* Saddle-brown border */
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+#avatar-container {
+    position: relative;
+    height: 200px;
+    background-color: rgba(0, 0, 0, 0.05); /* Slight tint for 3D model */
+    overflow: hidden;
+    width: 100%;
+}
+
+#avatar-container p {
+    display: none;
+}
+
+#avatar-response {
+    min-height: 50px;
+}
+
+/* Game Log Styling */
+#game-log {
+    height: 200px;
+    overflow-y: auto;
+    padding: 5px;
+    background-color: rgba(230, 210, 190, 0.2); /* Faint parchment tint */
+}
+
+#game-log.hidden {
+    display: none;
+}
+
+/* --- 7. BUTTONS & INPUTS --- */
+button {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.1em;
+    background-color: #8b4513; /* "Saddle Brown" button */
+    color: #fdf5e6;
+    border: 2px solid #5a3a22;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #a0522d; /* Lighter brown on hover */
+}
+
+/* Style for text input and map dropdown */
+input[type="text"],
+select {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 1.1em;
+    border: 2px solid #8b4513;
+    background-color: #fdf5e6; /* Light parchment */
+    color: #3a2a1a;
+    padding: 8px;
+    border-radius: 2px;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Player Input Form */
+#player-input-form {
+    display: flex;
+    margin-top: 10px;
+}
+
+#player-text-input {
+    flex-grow: 1;
+    margin-right: 5px;
+}
+
+/* --- 8. DICE STYLING --- */
+#dice-container {
+    display: none; /* game.js will change this */
+    padding: 10px;
+    text-align: center;
+}
+
+#dice-visual-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 10px auto;
+}
+
+/* Style for the dice roll button */
+#roll-d20-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    width: 100px;
+    height: 100px;
+}
+
+#roll-d20-button img {
+    width: 100%;
+    height: 100%;
+}
