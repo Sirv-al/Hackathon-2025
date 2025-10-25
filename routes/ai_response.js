@@ -3,7 +3,7 @@ const router = express.Router();
 const { GoogleGenAI } = require("@google/genai");
 const { OpenAI } = require('openai');
 
-
+const conversationHistory = new Map();
 
 class GeminiModel {
     constructor() {
@@ -46,15 +46,16 @@ class OpenAIClient {
         });
     }
 
-    async generateContent(prompt) {
+    async generateContent(messages) {
         try {
-            const response = await this.openai.responses.create({
-                model: "gpt-5-nano",
-                input: prompt,
-                store: true,
+            const response = await this.openai.chat.completions.create({
+                model: "gpt-3.5-turbo",
+                messages: messages,
+                max_tokens: 150,
+                temperature: 0.8,
             });
 
-            return response.output_text;
+            return response.choices[0].message.content;
         } catch (err) {
             console.error("OpenAI error:", err);
             throw new Error(err.message);
@@ -79,7 +80,7 @@ router.post('/ai_response', async (req, res) => {
         if (endpoint === '/start_game') {
             promptParts.push({ 
                 role: "system", 
-                content: `You are an immersive game master starting a new text-based RPG adventure. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses`
+                content: `You are an immersive game master starting a new text-based RPG adventure. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses. You can ask the player to roll a dice, to succeed or fail based on their stats. Put this in the format of request-roll"`
             });
             promptParts.push({ 
                 role: "user", 
