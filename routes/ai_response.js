@@ -115,7 +115,7 @@ router.post('/ai_response', async (req, res) => {
         } else if (endpoint === '/player_action') {
             messages.push({ 
                 role: "system", 
-                content: `Respond to the player's action by advancing the narrative naturally. If they want to do a specific action, get them to roll a d20 and give them success or failure and consequences based on their stats. To request a roll put in the format of request-roll. Remember the ongoing story and previous interactions.` 
+                content: `Respond to the player's action by advancing the narrative naturally (if they attack and fail, the enemy will attack back). If they want to do a specific action, get them to roll a d20 and give them success or failure and consequences based on their stats. To request a roll put in the format of request-roll. Remember the ongoing story and previous interactions.` 
             });
         } else if (endpoint === '/dice_roll') {
             messages.push({ 

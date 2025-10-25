@@ -38,9 +38,11 @@ export function initMapScene(containerId) {
     // Set renderer size and style
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.NoToneMapping;
-    renderer.shadowMap.enabled = false; // Disable shadows for performance
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.top = '0';
+    renderer.domElement.style.left = '0';
     container.appendChild(renderer.domElement);
 
     // Setup controls
@@ -83,7 +85,7 @@ export function initMapScene(containerId) {
 
     // Load the map model with optimizations
     loader.load(
-        "/models/medievaltownmap.glb",
+        "/models/medieval_town_two.glb",
         function (gltf) {
             console.log('Map model loaded successfully');
             

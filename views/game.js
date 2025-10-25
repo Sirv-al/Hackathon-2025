@@ -2,7 +2,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const aiDisabled = true;
-
     // --- 1. Get All DOM Elements ---
     // Left Column
     const mapSelect = document.getElementById("map-select");
