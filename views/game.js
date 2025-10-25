@@ -1,6 +1,21 @@
 import {initMapScene} from './mapScene'
+import { playRandomAnimation } from './avatarScene';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    let currentMusic = null;
+
+    function playMusic(src, loop = true) {
+    if (currentMusic) {
+        currentMusic.pause();
+        currentMusic.currentTime = 0;
+    }
+
+    currentMusic = new Audio(src);
+    currentMusic.loop = loop;
+    currentMusic.play();
+    }
+
     // --- MAP INITIALIZATION ---
     const mapSelect = document.getElementById('map-select');
     const loadButton = document.getElementById('map-submit-button');
@@ -22,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- GAME LOGIC SETUP ---
-    const aiDisabled = true;
+    const aiDisabled = false;
 
     // DOM elements
     const diceContainer = document.getElementById("dice-container");
@@ -55,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = "index.html";
             return;
         }
+
+        playMusic('Marketplace Ambience  Medieval Fantasy  D&D & RPG Soundscape for Streaming or Playing at Home.mp3')
 
         // Populate the stats panel
         updateStatsPanel();
@@ -219,12 +236,15 @@ function parseHPCommands(responseText) {
 
         // This is just another form of player action
 
-        if (selectedMap == "x") {
-            const enemy = "x"
-        } else if (selectedMap == "y") {
-            const enemy = "y"
-        } else if (selectedMap == "z") {
-            const enemy = "z"
+        if (selectedMap == "Windmill Battle") {
+            playMusic('Chinggis khaanii Magtaal - Batzorig Vaanchig.mp3')
+            const enemy = "Knight"
+        } else if (selectedMap == "Dragon Island") {
+            playMusic('Elden Ring OST 66 The Final Battle.mp3')
+            const enemy = "Dragon"
+        } else if (selectedMap == "Troll Castle") {
+            playMusic('views/Daudi Kaupmadr  God Of War (Troll Encounter) In-Game [HQ].mp3');
+            const enemy = "Troll"
         } else {
             const enemy = "Human"
         }
@@ -289,8 +309,10 @@ function parseHPCommands(responseText) {
         const textContainer = avatarResponseEl.querySelector('p');
 
         // Stream the text character by character
+        
         let index = 0;
         const streamText = () => {
+            playRandomAnimation();
             if (index < displayText.length) {
                 // Add next character (or small chunk)
                 textContainer.innerHTML = `<strong>Game Master:</strong> ${displayText.substring(0, index + 1)}`;
@@ -301,6 +323,8 @@ function parseHPCommands(responseText) {
                 setTimeout(streamText, delay);
             }
         };
+
+        
 
         // Start streaming after a brief pause
         setTimeout(streamText, 100);
