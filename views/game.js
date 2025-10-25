@@ -180,9 +180,6 @@ function parseHPCommands(responseText) {
         e.preventDefault();
         const inputText = playerTextInput.value.trim();
 
-
-
-
         // Display player's action in their speech bubble
         speechBubbleEl.innerHTML = `<p><strong>You:</strong> ${inputText}</p>`;
         playerTextInput.value = "";
