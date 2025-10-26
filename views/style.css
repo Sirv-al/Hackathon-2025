@@ -243,7 +243,7 @@ select {
 
 /* --- 8. DICE STYLING --- */
 #dice-container {
-    display: block; /* game.js will change this */
+    display: none; /* game.js will change this */
     padding: 10px;
     text-align: center;
 }
