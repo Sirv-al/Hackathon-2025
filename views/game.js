@@ -1,25 +1,69 @@
-import {initMapScene} from './mapScene'
+import {initMapScene} from './mapScene.js'
+import { initDragonScene } from './dragonScene.js'; // import dragon for cave
+import { initBurtsaScene } from './burtsa.js';
+import { initKnightScene } from './knight.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- MAP INITIALIZATION ---
     const mapSelect = document.getElementById('map-select');
     const loadButton = document.getElementById('map-submit-button');
     const mapContainerId = 'map-container';
+    const monsterContainerId = 'monster-container';
 
     let cleanupMapScene = null;
+    let cleanupDragonScene = null;
+    let cleanupBurtsaScene = null;
+    let cleanupKnightScene = null;
 
     // Load default map on startup
     const defaultMap = 'medieval_town_two';
     mapSelect.value = defaultMap; // update dropdown to reflect it
     cleanupMapScene = initMapScene(mapContainerId, defaultMap);
 
+    
+
     // Handle “Load Map” button
     loadButton.addEventListener('click', () => {
-        const selectedMap = mapSelect.value.toLowerCase();
-        if (cleanupMapScene) cleanupMapScene();
-        cleanupMapScene = initMapScene(mapContainerId, selectedMap);
-        handleMapSelection();
-    });
+    const selectedMap = mapSelect.value.toLowerCase();
+
+    // --- 1. Clear old map scene ---
+    if (cleanupMapScene) cleanupMapScene();
+    cleanupMapScene = initMapScene(mapContainerId, selectedMap);
+
+    // --- 2. Clear monster container ---
+    const monsterContainer = document.getElementById(monsterContainerId);
+    monsterContainer.innerHTML = '';
+
+    // --- 3. Clean up any active monster scenes ---
+    if (cleanupDragonScene) {
+        cleanupDragonScene();
+        cleanupDragonScene = null;
+    }
+    if (cleanupBurtsaScene) {
+        cleanupBurtsaScene();
+        cleanupBurtsaScene = null;
+    }
+
+    if (cleanupKnightScene) {
+        cleanupKnightScene();
+        cleanupKnightScene = null;
+    }
+
+    // --- 4. Load monsters for specific maps ---
+    if (selectedMap === 'cave') {
+        cleanupDragonScene = initDragonScene(monsterContainerId);
+    } 
+    else if (selectedMap === 'castle') {
+        cleanupBurtsaScene = initBurtsaScene(monsterContainerId);
+    }
+    else if (selectedMap === 'knight') {
+        cleanupKnightScene = initKnightScene(monsterContainerId);
+    }
+
+    // --- 5. Handle map-specific transitions or logic ---
+    handleMapSelection();
+});
+
 
     // --- GAME LOGIC SETUP ---
     const aiDisabled = true;

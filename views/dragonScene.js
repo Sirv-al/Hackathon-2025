@@ -19,7 +19,7 @@ export function playRandomAnimation() {
     avatarMixer.clipAction(randomClip).reset().play();
 }
 
-export function initKnightScene(containerId) {
+export function initDragonScene(containerId) {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error('Container not found:', containerId);
@@ -73,22 +73,22 @@ export function initKnightScene(containerId) {
     controlsDiv.style.borderRadius = '3px';
     container.appendChild(controlsDiv);
 
-    // Load knight model
+    // Load Dragon model
     loader.load(
-        "/models/BlueKnight.glb",
+        "/models/dragon.glb",
         (gltf) => {
-            const knight = gltf.scene;
-            scene.add(knight);
+            const dragon = gltf.scene;
+            scene.add(dragon);
 
             // Compute bounding box
-            const box = new THREE.Box3().setFromObject(knight);
+            const box = new THREE.Box3().setFromObject(dragon);
             const center = new THREE.Vector3();
             const size = new THREE.Vector3();
             box.getCenter(center);
             box.getSize(size);
 
-            // Re-center the knight
-            knight.position.sub(center);
+            // Re-center the dragon
+            dragon.position.sub(center);
 
             // Determine camera distance based on bounding box diagonal
             const maxDim = Math.max(size.x, size.y, size.z);
@@ -111,7 +111,7 @@ export function initKnightScene(containerId) {
             scene.add(directional);
 
             // Mixer & animations
-            mixer = new THREE.AnimationMixer(knight);
+            mixer = new THREE.AnimationMixer(dragon);
             setMixer(mixer, gltf.animations);
 
             gltf.animations.forEach((clip, i) => {
@@ -129,10 +129,10 @@ export function initKnightScene(containerId) {
                 controlsDiv.appendChild(button);
             });
 
-            console.log("knight bounding box:", box.min, box.max);
+            console.log("Dragon bounding box:", box.min, box.max);
         },
-        (progress) => console.log(`knight loading: ${(progress.loaded / progress.total * 100).toFixed(2)}%`),
-        (error) => console.error("Error loading knight:", error)
+        (progress) => console.log(`Dragon loading: ${(progress.loaded / progress.total * 100).toFixed(2)}%`),
+        (error) => console.error("Error loading dragon:", error)
     );
 
     // Resize handling
