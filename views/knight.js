@@ -41,7 +41,6 @@ export function initKnightScene(containerId) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.container.translateY("40px")
     container.appendChild(renderer.domElement);
 
     // Orbit Controls
@@ -56,7 +55,7 @@ export function initKnightScene(containerId) {
     labelRenderer.domElement.style.top = '0';
     labelRenderer.domElement.style.left = '0';
     labelRenderer.domElement.style.pointerEvents = 'none';
-    
+
     container.appendChild(labelRenderer.domElement);
 
     let mixer = null;
@@ -96,11 +95,11 @@ export function initKnightScene(containerId) {
             const maxDim = Math.max(size.x, size.y, size.z);
             const fov = camera.fov * (Math.PI / 180);
             let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-            cameraZ *= 1.5; // extra space
-            camera.position.set(0, size.y * 0.5, cameraZ);
-            camera.lookAt(0, size.y * 0.5, 0);
+            cameraZ *= 1.1; // extra space
+            camera.position.set(0, 0, cameraZ);
+            camera.lookAt(0, 0, 0);
 
-            orbit.target.set(0, size.y * 0.5, 0);
+            orbit.target.set(0, 0, 0);
             orbit.update();
 
             // Lighting
@@ -140,7 +139,6 @@ export function initKnightScene(containerId) {
     // Resize handling
     const resizeObserver = new ResizeObserver(() => {
         camera.aspect = container.clientWidth / container.clientHeight;
-        container.translateY("80px");
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
         labelRenderer.setSize(container.clientWidth, container.clientHeight);

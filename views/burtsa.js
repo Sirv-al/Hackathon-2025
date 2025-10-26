@@ -37,7 +37,7 @@ export function initBurtsaScene(containerId) {
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(container.clientWidth, container.clientHeight );
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -95,10 +95,10 @@ export function initBurtsaScene(containerId) {
             const fov = camera.fov * (Math.PI / 180);
             let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
             cameraZ *= 1.5; // extra space
-            camera.position.set(0, size.y * 0.5, cameraZ);
-            camera.lookAt(0, size.y * 0.5, 0);
+            camera.position.set(0, 0, cameraZ);
+            camera.lookAt(0, 0, 0);
 
-            orbit.target.set(0, size.y * 0.5, 0);
+            orbit.target.set(0, 0, 0);
             orbit.update();
 
             // Lighting
