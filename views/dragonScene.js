@@ -4,19 +4,19 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const loader = new GLTFLoader();
-let avatarMixer = null;
-let avatarClips = [];
+let dragonMixer = null;
+let dragonClips = [];
 
 export function setMixer(mixer, clips) {
-    avatarMixer = mixer;
-    avatarClips = clips;
+    dragonMixer = mixer;
+    dragonClips = clips;
 }
 
-export function playRandomAnimation() {
-    if (!avatarMixer || avatarClips.length === 0) return;
-    const randomClip = avatarClips[Math.floor(Math.random() * avatarClips.length)];
-    avatarMixer.stopAllAction();
-    avatarMixer.clipAction(randomClip).reset().play();
+export function playRandomDragonAnimation() {
+    if (!dragonMixer || dragonClips.length === 0) return;
+    const randomClip = dragonClips[Math.floor(Math.random() * dragonClips.length)];
+    dragonMixer.stopAllAction();
+    dragonMixer.clipAction(randomClip).reset().play();
 }
 
 export function initDragonScene(containerId) {

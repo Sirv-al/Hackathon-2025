@@ -4,19 +4,19 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const loader = new GLTFLoader();
-let avatarMixer = null;
-let avatarClips = [];
+let knightMixer = null;
+let knightClips = [];
 
 export function setMixer(mixer, clips) {
-    avatarMixer = mixer;
-    avatarClips = clips;
+    knightMixer = mixer;
+    knightClips = clips;
 }
 
-export function playRandomAnimation() {
-    if (!avatarMixer || avatarClips.length === 0) return;
-    const randomClip = avatarClips[Math.floor(Math.random() * avatarClips.length)];
-    avatarMixer.stopAllAction();
-    avatarMixer.clipAction(randomClip).reset().play();
+export function playRandomKnightAnimation() {
+    if (!knightMixer || knightClips.length === 0) return;
+    const randomClip = knightClips[Math.floor(Math.random() * knightClips.length)];
+    knightMixer.stopAllAction();
+    knightMixer.clipAction(randomClip).reset().play();
 }
 
 export function initKnightScene(containerId) {

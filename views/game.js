@@ -1,8 +1,8 @@
 import {initMapScene} from './mapScene.js'
 import { playRandomAnimation, idle } from './avatarScene.js';
-import { initDragonScene } from './dragonScene.js'; // import dragon for cave
-import { initBurtsaScene } from './burtsa.js';
-import { initKnightScene } from './knight.js';
+import { initDragonScene, playRandomDragonAnimation } from './dragonScene.js'; // import dragon for cave
+import { initBurtsaScene, playRandomBurtsaAnimation } from './burtsa.js';
+import { initKnightScene, playRandomKnightAnimation } from './knight.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -286,12 +286,15 @@ function parseHPCommands(responseText) {
         console.log("*****" + selectedMap);
         // This is just another form of player action
         if (selectedMap == "knight-windmill") {
+            playRandomKnightAnimation();
             playMusic('Chinggis khaanii Magtaal - Batzorig Vaanchig.mp3')
             enemy = "Knight"
         } else if (selectedMap == "dragon-island") {
+            playRandomDragonAnimation();
             playMusic('Elden Ring OST 66 The Final Battle.mp3')
             enemy = "Dragon"
         } else if (selectedMap == "troll-castle") {
+            playRandomBurtsaAnimation();
             playMusic('views/Daudi Kaupmadr  God Of War (Troll Encounter) In-Game [HQ].mp3');
             enemy = "Troll"
         } else {

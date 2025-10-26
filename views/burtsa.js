@@ -4,19 +4,19 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const loader = new GLTFLoader();
-let avatarMixer = null;
-let avatarClips = [];
+let burstaMixer = null;
+let burstaClips = [];
 
 export function setMixer(mixer, clips) {
-    avatarMixer = mixer;
-    avatarClips = clips;
+    burstaMixer = mixer;
+    burstaClips = clips;
 }
 
-export function playRandomAnimation() {
-    if (!avatarMixer || avatarClips.length === 0) return;
-    const randomClip = avatarClips[Math.floor(Math.random() * avatarClips.length)];
-    avatarMixer.stopAllAction();
-    avatarMixer.clipAction(randomClip).reset().play();
+export function playRandomBurtsaAnimation() {
+    if (!burstaMixer || burstaClips.length === 0) return;
+    const randomClip = burstaClips[Math.floor(Math.random() * burstaClips.length)];
+    burstaMixer.stopAllAction();
+    burstaMixer.clipAction(randomClip).reset().play();
 }
 
 export function initBurtsaScene(containerId) {
