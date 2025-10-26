@@ -94,11 +94,11 @@ export function initDragonScene(containerId) {
             const maxDim = Math.max(size.x, size.y, size.z);
             const fov = camera.fov * (Math.PI / 180);
             let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-            cameraZ *= 1.5; // extra space
-            camera.position.set(0, size.y * 0.5, cameraZ);
-            camera.lookAt(0, size.y * 0.5, 0);
+            cameraZ *= 1.1; // extra space
+            camera.position.set(0, 0, cameraZ);
+            camera.lookAt(0, 0, 0);
 
-            orbit.target.set(0, size.y * 0.5, 0);
+            orbit.target.set(0,0, 0);
             orbit.update();
 
             // Lighting
