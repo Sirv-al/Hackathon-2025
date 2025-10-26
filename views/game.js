@@ -6,7 +6,41 @@ import { initKnightScene, playRandomKnightAnimation } from './knight.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    async function textSpeech(text) {
+        try {
+            const response = await fetch("https://api.openai.com/v1/audio/speech", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer [PLACEHOLDER]`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini-tts",
+                    voice: "alloy",
+                    input: text,
+                }),
+            });
+
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+
+            // 🔉 Lower game music while TTS is speaking
+            if (currentMusic) currentMusic.volume = 0.1; // reduce volume
+
+            // When TTS finishes, restore volume
+            audio.addEventListener("ended", () => {
+                if (currentMusic) currentMusic.volume = musicVolume; // restore
+            });
+
+            audio.play();
+        } catch (err) {
+            console.error("TTS Error:", err);
+        }
+    }
+
     let currentMusic = null;
+    let musicVolume = 0.3;
 
     function playMusic(src, loop = true) {
     if (currentMusic) {
@@ -16,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentMusic = new Audio(src);
     currentMusic.loop = loop;
+    currentMusic.volume = musicVolume;
     currentMusic.play();
     }
 
@@ -35,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mapSelect.value = defaultMap; // update dropdown to reflect it
     cleanupMapScene = initMapScene(mapContainerId, defaultMap);
 
-    
+
 
     // Handle “Load Map” button
     loadButton.addEventListener('click', () => {
@@ -67,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. Load monsters for specific maps ---
     if (selectedMap === 'dragon-island') {
         cleanupDragonScene = initDragonScene(monsterContainerId);
-    } 
+    }
     else if (selectedMap === 'troll-castle') {
         cleanupBurtsaScene = initBurtsaScene(monsterContainerId);
     }
@@ -274,6 +309,10 @@ function parseHPCommands(responseText) {
         document.getElementById("dice-container").style.display = "none";
     }
 
+    function wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async function handleMapSelection() {
         const selectedMap = mapSelect.value;
         const mapText = mapSelect.options[mapSelect.selectedIndex].text;
@@ -282,8 +321,8 @@ function parseHPCommands(responseText) {
         if (cleanupMapScene) cleanupMapScene();
         cleanupMapScene = initMapScene(mapContainerId, selectedMap.toLowerCase());
 
+        await wait(1000);
         let enemy = "";
-        console.log("*****" + selectedMap);
         // This is just another form of player action
         if (selectedMap == "knight-windmill") {
             playRandomKnightAnimation();
@@ -343,44 +382,40 @@ function parseHPCommands(responseText) {
     }
 
     function updateUI(responseData) {
-        // First, parse and handle any HP commands
-        const hadHPCommand = parseHPCommands(responseData);
+    const hadHPCommand = parseHPCommands(responseData);
+    let displayText = responseData;
+    if (hadHPCommand) {
+        displayText = responseData.replace(/HP:\s*\d+/gi, '').trim();
+        if (!displayText) displayText = "Your health has been updated.";
+    }
 
-        // If there were HP commands, remove them from the displayed text for cleaner output
-        let displayText = responseData;
-        if (hadHPCommand) {
-            displayText = responseData.replace(/HP:\s*\d+/gi, '').trim();
-            // If removing HP command leaves empty text, use a fallback
-            if (!displayText) {
-                displayText = "Your health has been updated.";
-            }
+    avatarResponseEl.innerHTML = '<p><strong>Game Master:</strong> </p>';
+    const textContainer = avatarResponseEl.querySelector('p');
+
+    let index = 0;
+    let speechStarted = false;
+
+    const streamText = () => {
+        playRandomAnimation();
+
+        if (index < displayText.length) {
+        textContainer.innerHTML = `<strong>Game Master:</strong> ${displayText.substring(0, index + 1)}`;
+        index++;
+
+        // Start TTS only once, when text streaming begins
+        if (!speechStarted && index > 10) {
+            speechStarted = true;
+            textSpeech(displayText);
         }
 
-        // Clear previous content and set up streaming
-        avatarResponseEl.innerHTML = '<p><strong>Game Master:</strong> </p>';
-        const textContainer = avatarResponseEl.querySelector('p');
-
-        // Stream the text character by character
-        
-        let index = 0;
-        const streamText = () => {
-            playRandomAnimation();
-            if (index < displayText.length) {
-                // Add next character (or small chunk)
-                textContainer.innerHTML = `<strong>Game Master:</strong> ${displayText.substring(0, index + 1)}`;
-                index++;
-
-                // Random delay to simulate natural typing speed
-                const delay = Math.random() * 10 + 10; // 25-75ms between characters
-                setTimeout(streamText, delay);
-            }
-        };
-
+        const delay = Math.random() * 10 + 10;
+        setTimeout(streamText, delay);
+        } else {
         idle();
+        }
+    };
 
-
-        // Start streaming after a brief pause
-        setTimeout(streamText, 100);
+    setTimeout(streamText, 100);
     }
 
 

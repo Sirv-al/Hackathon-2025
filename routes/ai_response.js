@@ -1,7 +1,10 @@
 const express = require('express');
+const fs = require('fs')
+const path = require('path');
 const router = express.Router();
 const { GoogleGenAI } = require("@google/genai");
 const { OpenAI } = require('openai');
+
 
 const conversationHistory = new Map();
 
@@ -35,7 +38,7 @@ class GeminiModel {
             console.error("Gemini error:", err);
             throw new Error(err.message);
         }
-    } 
+    }
 }
 
 class OpenAIClient {
@@ -50,7 +53,6 @@ class OpenAIClient {
             const response = await this.openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
                 messages: messages,
-                max_tokens: 150, // change this to stop cutting off
                 temperature: 0.8,
             });
 
@@ -76,12 +78,12 @@ function getConversationHistory(playerId) {
 function addToConversationHistory(playerId, role, content) {
     const history = getConversationHistory(playerId);
     history.push({ role, content });
-    
+
     // Limit history to last 10 messages to prevent token overflow
     if (history.length > 10) {
         history.splice(0, history.length - 10);
     }
-    
+
     conversationHistory.set(playerId, history);
 }
 
@@ -103,34 +105,34 @@ router.post('/ai_response', async (req, res) => {
         // Get conversation history for this player
         const history = getConversationHistory(playerId);
         const messages = [];
-        
+
         // Add system message based on endpoint
         if (endpoint === '/start_game') {
-            messages.push({ 
-                role: "system", 
+            messages.push({
+                role: "system",
                 content: `You are an immersive game master starting a new text-based RPG adventure. The player starts in a medievil town. Create an engaging opening scene that introduces the game world and sets up the first choice for the player. Max 50 words responses. Never roll yourself for the play, instead you can ask the player to roll a dice (strenght, dex, and int), setting the dc based on their respective stat. Put this in the format of request-roll. In combat you can damage the player by setting their HP, do this by doing {HP: NUM}. `
             });
             // Clear previous history when starting a new game
             clearConversationHistory(playerId);
         } else if (endpoint === '/player_action') {
-            messages.push({ 
-                role: "system", 
-                content: `Respond to the player's action by advancing the narrative naturally (if they attack and fail, the enemy will attack back). If they want to do a specific action, get them to roll a d20 and give them success or failure and consequences based on their stats. To request a roll put in the format of request-roll. Remember the ongoing story and previous interactions.` 
+            messages.push({
+                role: "system",
+                content: `Respond to the player's action by advancing the narrative naturally (if they attack and fail, the enemy will attack back). If they want to do a specific action, get them to roll a d20 and give them success or failure and consequences based on their stats. To request a roll put in the format of request-roll. Remember the ongoing story and previous interactions.`
             });
         } else if (endpoint === '/dice_roll') {
-            messages.push({ 
-                role: "system", 
-                content: `You are an immersive game master for a text-based RPG. Interpret the dice roll in the context of the ongoing story, and show tell me how the result impacts the scenario.` 
+            messages.push({
+                role: "system",
+                content: `You are an immersive game master for a text-based RPG. Interpret the dice roll in the context of the ongoing story, and show tell me how the result impacts the scenario.`
             });
         } else if (endpoint === '/map-selection') {
-            messages.push({ 
-                role: "system", 
-                content: `You are an immersive game master for a text-based RPG. Describe the new location. THe player encounters the enemy ahead of them, it's up to them how to start` 
+            messages.push({
+                role: "system",
+                content: `You are an immersive game master for a text-based RPG. Describe the new location. THe player encounters the enemy ahead of them, it's up to them how to start`
             });
         } else {
-            messages.push({ 
-                role: "system", 
-                content: `You are an immersive game master for a text-based RPG. The player is interacting through: ${endpoint}. Maintain consistency with previous interactions.` 
+            messages.push({
+                role: "system",
+                content: `You are an immersive game master for a text-based RPG. The player is interacting through: ${endpoint}. Maintain consistency with previous interactions.`
             });
         }
 
@@ -143,29 +145,29 @@ router.post('/ai_response', async (req, res) => {
 
         // Add current context based on endpoint
         if (endpoint === '/start_game') {
-            messages.push({ 
-                role: "user", 
-                content: `**New Player Character:**\n${formatPlayerData(payload.playerData)}` 
+            messages.push({
+                role: "user",
+                content: `**New Player Character:**\n${formatPlayerData(payload.playerData)}`
             });
         } else if (endpoint === '/player_action') {
-            messages.push({ 
-                role: "user", 
-                content: `**Player Character:**\n${formatPlayerData(payload.current_stats)}\n**Player Action:** "${payload.player_text}"` 
+            messages.push({
+                role: "user",
+                content: `**Player Character:**\n${formatPlayerData(payload.current_stats)}\n**Player Action:** "${payload.player_text}"`
             });
         } else if (endpoint === '/dice_roll') {
-            messages.push({ 
-                role: "user", 
-                content: `**Game Mechanics:** Dice roll: ${payload}\n**Continue the story based on this roll:**` 
+            messages.push({
+                role: "user",
+                content: `**Game Mechanics:** Dice roll: ${payload}\n**Continue the story based on this roll:**`
             });
         } else if (endpoint === '/map-selection') {
-            messages.push({ 
+            messages.push({
                 role: "user",
-                content: `**Location:** ${payload}\n**Describe this new area in the ongoing adventure:**` 
+                content: `**Location:** ${payload}\n**Describe this new area in the ongoing adventure:**`
             });
         } else {
-            messages.push({ 
-                role: "user", 
-                content: `**Game Context:**\n${JSON.stringify(payload, null, 2)}` 
+            messages.push({
+                role: "user",
+                content: `**Game Context:**\n${JSON.stringify(payload, null, 2)}`
             });
         }
 
@@ -173,26 +175,26 @@ router.post('/ai_response', async (req, res) => {
         console.log("📚 Conversation History Length:", history.length);
 
         const response = await openAI.generateContent(messages);
-        
+
         // Store both the user message and assistant response in history
         if (endpoint !== '/start_game') { // Don't store start game in history
             addToConversationHistory(playerId, "user", messages[messages.length - 1].content);
         }
         addToConversationHistory(playerId, "assistant", response.content);
-        
-        res.json({ 
+
+        res.json({
             text: response.content,
             memory: {
                 historyLength: getConversationHistory(playerId).length,
                 playerId: playerId
             }
         });
-        
+
     } catch (err) {
         console.error("❌ AI Response Error:", err);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Game world temporarily unavailable",
-            details: err.message 
+            details: err.message
         });
     }
 });
@@ -201,7 +203,7 @@ router.post('/ai_response', async (req, res) => {
 router.post('/clear_memory', (req, res) => {
     const { playerId = 'default' } = req.body;
     clearConversationHistory(playerId);
-    res.json({ 
+    res.json({
         message: `Memory cleared for player ${playerId}`,
         memorySize: conversationHistory.size
     });
@@ -216,7 +218,7 @@ router.get('/memory_stats', (req, res) => {
             lastMessages: history.slice(-2) // Last 2 messages
         };
     });
-    
+
     res.json({
         totalPlayers: conversationHistory.size,
         details: stats
@@ -234,11 +236,13 @@ function formatPlayerData(playerData) {
 
 💪 **Attributes**:
    Strength: ${stats.str}
-   Dexterity: ${stats.dex}  
+   Dexterity: ${stats.dex}
    Intelligence: ${stats.int}
 
 ❤️ **Health**: ${hp}/${maxHp}
 `;
 }
- 
+
+router.use('/tts', express.static(path.join(__dirname, 'tts_audio')));
+
 module.exports = router;
