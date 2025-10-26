@@ -7,7 +7,8 @@ npm install --save-dev-vite
 npm install --save-dev concurrently
 npm install openai
 
+npm install openai
+
+
 This will run vite and nodeJS server simultaneously
 to run: npm run dev
-
-npm install openai

@@ -11,12 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch("https://api.openai.com/v1/audio/speech", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer [PLACEHOLDER]`,
+                    "Authorization": `Bearer `,
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     model: "gpt-4o-mini-tts",
-                    voice: "alloy",
+                    voice: "echo",
                     input: text,
                 }),
             });
@@ -210,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check for death
         if (playerData.hp <= 0) {
             updateLog("You have been defeated! The adventure ends here.", "System");
+            alert("You have been defeated! The adventure ends here.", "System");
             // Optionally disable further input or trigger game over sequence
         }
     }
@@ -372,7 +373,7 @@ function parseHPCommands(responseText) {
                 document.getElementById("dice-container").style.display = "block";
                 // isWaitingForRoll = true;
                 // handleDiceRoll();
-            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ") || data.text.toUpperCase().includes("POINTS OF DAMAGE") || data.text.toUpperCase().includes("HEALTH") || data.text.toUpperCase().includes("/100") || data.text.toUpperCase().includes("HEALTH DROPS")) {
+            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ") || data.text.toUpperCase().includes("POINTS OF DAMAGE") || data.text.toUpperCase().includes("HEALTH") || data.text.toUpperCase().includes("/100") || data.text.toUpperCase().includes("HEALTH DROPS TO")) {
                 // Parse and handle HP commands
                 parseHPCommands(data.text);
             }
