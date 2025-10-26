@@ -24,6 +24,15 @@ export function playRandomAnimation() {
     avatarMixer.clipAction(randomClip).reset().play();
 }
 
+export function idle() {
+    if (!avatarMixer || avatarClips.length === 0) return;
+
+    const randomClip = avatarClips[3];
+
+    avatarMixer.stopAllAction();
+    avatarMixer.clipAction(randomClip).reset().play();
+}
+
 export function initAvatarScene(containerId) {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -93,23 +102,23 @@ export function initAvatarScene(containerId) {
             setMixer(mixer, gltf.animations);
 
             // Create buttons for each animation
-            gltf.animations.forEach((clip, index) => {
-                const button = document.createElement('button');
-                button.textContent = clip.name || `Anim ${index + 1}`;
-                button.style.fontSize = '0.6em';
-                button.style.backgroundColor = 'rgba(255,255,255,0.6)';
-                button.style.border = '1px solid rgba(255,255,255,0.2)';
-                button.style.cursor = 'pointer';
-                button.style.width = '100%';
-                button.style.textAlign = 'left';
+            // gltf.animations.forEach((clip, index) => {
+            //     const button = document.createElement('button');
+            //     button.textContent = clip.name || `Anim ${index + 1}`;
+            //     button.style.fontSize = '0.6em';
+            //     button.style.backgroundColor = 'rgba(255,255,255,0.6)';
+            //     button.style.border = '1px solid rgba(255,255,255,0.2)';
+            //     button.style.cursor = 'pointer';
+            //     button.style.width = '100%';
+            //     button.style.textAlign = 'left';
 
-                button.addEventListener('click', () => {
-                    mixer.stopAllAction();
-                    mixer.clipAction(clip).reset().play();
-                });
+            //     button.addEventListener('click', () => {
+            //         mixer.stopAllAction();
+            //         mixer.clipAction(clip).reset().play();
+            //     });
 
-                controlsDiv.appendChild(button);
-            });
+            //     controlsDiv.appendChild(button);
+            // });
         },
         (progress) => console.log(`Loading progress: ${(progress.loaded / progress.total * 100).toFixed(2)}%`),
         (error) => console.error('Error loading avatar:', error)

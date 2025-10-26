@@ -4,6 +4,20 @@ import { initBurtsaScene } from './burtsa.js';
 import { initKnightScene } from './knight.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    let currentMusic = null;
+
+    function playMusic(src, loop = true) {
+    if (currentMusic) {
+        currentMusic.pause();
+        currentMusic.currentTime = 0;
+    }
+
+    currentMusic = new Audio(src);
+    currentMusic.loop = loop;
+    currentMusic.play();
+    }
+
     // --- MAP INITIALIZATION ---
     const mapSelect = document.getElementById('map-select');
     const loadButton = document.getElementById('map-submit-button');
@@ -66,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- GAME LOGIC SETUP ---
-    const aiDisabled = true;
+    const aiDisabled = false;
 
     // DOM elements
     const diceContainer = document.getElementById("dice-container");
@@ -99,6 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = "index.html";
             return;
         }
+
+        playMusic('Marketplace Ambience  Medieval Fantasy  D&D & RPG Soundscape for Streaming or Playing at Home.mp3')
 
         // Populate the stats panel
         updateStatsPanel();
@@ -178,13 +194,15 @@ function parseHPCommands(responseText) {
     while ((match = hpRegex.exec(responseText)) !== null) {
         const newHp = parseInt(match[1]);
         if (!isNaN(newHp)) {
-            updatePlayerHP(newHp);
+                (newHp);
             hpUpdated = true;
         }
     }
 
+    let dmgDealt = false;
     // X/100 pattern
     while ((match = damageRegex1.exec(responseText)) !== null) {
+        dmgDealt = true;
         const damage = parseInt(match[1]);
         if (!isNaN(damage)) {
             // Assuming this represents current HP out of 100 max
@@ -193,14 +211,16 @@ function parseHPCommands(responseText) {
         }
     }
 
-    // X POINTS OF DMG pattern
-    while ((match = damageRegex2.exec(responseText)) !== null) {
-        const damage = parseInt(match[1]);
-        if (!isNaN(damage)) {
-            const currentHP = playerData.hp;
-            const newHp = Math.max(0, currentHP - damage);
-            updatePlayerHP(newHp);
-            hpUpdated = true;
+    if (!dmgDealt) {
+        // X POINTS OF DMG pattern
+        while ((match = damageRegex2.exec(responseText)) !== null) {
+            const damage = parseInt(match[1]);
+            if (!isNaN(damage)) {
+                const currentHP = playerData.hp;
+                const newHp = Math.max(0, currentHP - damage);
+                updatePlayerHP(newHp);
+                hpUpdated = true;
+            }
         }
     }
 
@@ -241,7 +261,7 @@ function parseHPCommands(responseText) {
         // Get the reason for the roll from the UI
         toggleControls(true)
         // Display the roll in the log
-        updateLog(`You rolled a ${roll}".`, "System");
+        updateLog(`You rolled a ${roll}.`, "System");
 
         // Send the roll result to the backend
         const payload = {
@@ -261,16 +281,20 @@ function parseHPCommands(responseText) {
         if (cleanupMapScene) cleanupMapScene();
         cleanupMapScene = initMapScene(mapContainerId, selectedMap.toLowerCase());
 
+        let enemy = "";
+        console.log("*****" + selectedMap);
         // This is just another form of player action
-
-        if (selectedMap == "x") {
-            const enemy = "x"
-        } else if (selectedMap == "y") {
-            const enemy = "y"
-        } else if (selectedMap == "z") {
-            const enemy = "z"
+        if (selectedMap == "knight-windmill") {
+            playMusic('Chinggis khaanii Magtaal - Batzorig Vaanchig.mp3')
+            enemy = "Knight"
+        } else if (selectedMap == "dragon-island") {
+            playMusic('Elden Ring OST 66 The Final Battle.mp3')
+            enemy = "Dragon"
+        } else if (selectedMap == "troll-castle") {
+            playMusic('views/Daudi Kaupmadr  God Of War (Troll Encounter) In-Game [HQ].mp3');
+            enemy = "Troll"
         } else {
-            const enemy = "Human"
+            enemy = "Human"
         }
 
         const payload = selectedMap + " Enemy: " + enemy;
@@ -305,7 +329,7 @@ function parseHPCommands(responseText) {
                 document.getElementById("dice-container").style.display = "block";
                 // isWaitingForRoll = true;
                 // handleDiceRoll();
-            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ") || data.text.toUpperCase().includes("POINTS OF DAMAGE") || data.text.toUpperCase().includes("HEALTH") || data.text.toUpperCase().includes("/100")) {
+            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ") || data.text.toUpperCase().includes("POINTS OF DAMAGE") || data.text.toUpperCase().includes("HEALTH") || data.text.toUpperCase().includes("/100") || data.text.toUpperCase().includes("HEALTH DROPS")) {
                 // Parse and handle HP commands
                 parseHPCommands(data.text);
             }
@@ -333,8 +357,10 @@ function parseHPCommands(responseText) {
         const textContainer = avatarResponseEl.querySelector('p');
 
         // Stream the text character by character
+        
         let index = 0;
         const streamText = () => {
+            playRandomAnimation();
             if (index < displayText.length) {
                 // Add next character (or small chunk)
                 textContainer.innerHTML = `<strong>Game Master:</strong> ${displayText.substring(0, index + 1)}`;
@@ -345,6 +371,9 @@ function parseHPCommands(responseText) {
                 setTimeout(streamText, delay);
             }
         };
+
+        idle();
+
 
         // Start streaming after a brief pause
         setTimeout(streamText, 100);

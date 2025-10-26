@@ -50,7 +50,7 @@ class OpenAIClient {
             const response = await this.openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
                 messages: messages,
-                max_tokens: 150,
+                max_tokens: 150, // change this to stop cutting off
                 temperature: 0.8,
             });
 
