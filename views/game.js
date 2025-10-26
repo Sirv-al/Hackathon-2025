@@ -151,13 +151,15 @@ function parseHPCommands(responseText) {
     while ((match = hpRegex.exec(responseText)) !== null) {
         const newHp = parseInt(match[1]);
         if (!isNaN(newHp)) {
-            updatePlayerHP(newHp);
+                (newHp);
             hpUpdated = true;
         }
     }
 
+    let dmgDealt = false;
     // X/100 pattern
     while ((match = damageRegex1.exec(responseText)) !== null) {
+        dmgDealt = true;
         const damage = parseInt(match[1]);
         if (!isNaN(damage)) {
             // Assuming this represents current HP out of 100 max
@@ -166,14 +168,16 @@ function parseHPCommands(responseText) {
         }
     }
 
-    // X POINTS OF DMG pattern
-    while ((match = damageRegex2.exec(responseText)) !== null) {
-        const damage = parseInt(match[1]);
-        if (!isNaN(damage)) {
-            const currentHP = playerData.hp;
-            const newHp = Math.max(0, currentHP - damage);
-            updatePlayerHP(newHp);
-            hpUpdated = true;
+    if (!dmgDealt) {
+        // X POINTS OF DMG pattern
+        while ((match = damageRegex2.exec(responseText)) !== null) {
+            const damage = parseInt(match[1]);
+            if (!isNaN(damage)) {
+                const currentHP = playerData.hp;
+                const newHp = Math.max(0, currentHP - damage);
+                updatePlayerHP(newHp);
+                hpUpdated = true;
+            }
         }
     }
 
@@ -282,7 +286,7 @@ function parseHPCommands(responseText) {
                 document.getElementById("dice-container").style.display = "block";
                 // isWaitingForRoll = true;
                 // handleDiceRoll();
-            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ") || data.text.toUpperCase().includes("POINTS OF DAMAGE") || data.text.toUpperCase().includes("HEALTH") || data.text.toUpperCase().includes("/100")) {
+            } else if (data.text.toUpperCase().includes("HP: ") || data.text.toUpperCase().includes("Health: ") || data.text.toUpperCase().includes("POINTS OF DAMAGE") || data.text.toUpperCase().includes("HEALTH") || data.text.toUpperCase().includes("/100") || data.text.toUpperCase().includes("HEALTH DROPS")) {
                 // Parse and handle HP commands
                 parseHPCommands(data.text);
             }
