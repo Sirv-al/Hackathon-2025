@@ -1,5 +1,5 @@
 import {initMapScene} from './mapScene'
-import { playRandomAnimation } from './avatarScene';
+import { playRandomAnimation, idle } from './avatarScene';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -214,7 +214,7 @@ function parseHPCommands(responseText) {
         // Get the reason for the roll from the UI
         toggleControls(true)
         // Display the roll in the log
-        updateLog(`You rolled a ${roll}".`, "System");
+        updateLog(`You rolled a ${roll}.`, "System");
 
         // Send the roll result to the backend
         const payload = {
@@ -325,7 +325,8 @@ function parseHPCommands(responseText) {
             }
         };
 
-        
+        idle();
+
 
         // Start streaming after a brief pause
         setTimeout(streamText, 100);
