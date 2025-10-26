@@ -104,10 +104,10 @@ export function initMapScene(containerId, mapType = 'knight') {
 
     // Setup controls
     const orbit = new OrbitControls(camera, renderer.domElement);
-    if (mapType === 'cave') {
+    if (mapType === 'dragon-island') {
     orbit.maxDistance = 40;
     orbit.minDistance = 5;
-    } else if (mapType === 'castle') {
+    } else if (mapType === 'troll-castle') {
         orbit.maxDistance = 120;
         orbit.minDistance = 20;
     } else {

@@ -1,4 +1,5 @@
 import {initMapScene} from './mapScene.js'
+import { playRandomAnimation, idle } from './avatarScene.js';
 import { initDragonScene } from './dragonScene.js'; // import dragon for cave
 import { initBurtsaScene } from './burtsa.js';
 import { initKnightScene } from './knight.js';
@@ -64,13 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 4. Load monsters for specific maps ---
-    if (selectedMap === 'cave') {
+    if (selectedMap === 'dragon-island') {
         cleanupDragonScene = initDragonScene(monsterContainerId);
     } 
-    else if (selectedMap === 'castle') {
+    else if (selectedMap === 'troll-castle') {
         cleanupBurtsaScene = initBurtsaScene(monsterContainerId);
     }
-    else if (selectedMap === 'knight') {
+    else if (selectedMap === 'knight-windmill') {
         cleanupKnightScene = initKnightScene(monsterContainerId);
     }
 

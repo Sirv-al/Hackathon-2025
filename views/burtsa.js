@@ -114,20 +114,20 @@ export function initBurtsaScene(containerId) {
             mixer = new THREE.AnimationMixer(burtsa);
             setMixer(mixer, gltf.animations);
 
-            gltf.animations.forEach((clip, i) => {
-                const button = document.createElement('button');
-                button.textContent = clip.name || `Anim ${i + 1}`;
-                button.style.fontSize = '0.7em';
-                button.style.backgroundColor = 'rgba(255,255,255,0.7)';
-                button.style.border = '1px solid rgba(0,0,0,0.2)';
-                button.style.cursor = 'pointer';
-                button.style.width = '100%';
-                button.addEventListener('click', () => {
-                    mixer.stopAllAction();
-                    mixer.clipAction(clip).reset().play();
-                });
-                controlsDiv.appendChild(button);
-            });
+            // gltf.animations.forEach((clip, i) => {
+            //     const button = document.createElement('button');
+            //     button.textContent = clip.name || `Anim ${i + 1}`;
+            //     button.style.fontSize = '0.7em';
+            //     button.style.backgroundColor = 'rgba(255,255,255,0.7)';
+            //     button.style.border = '1px solid rgba(0,0,0,0.2)';
+            //     button.style.cursor = 'pointer';
+            //     button.style.width = '100%';
+            //     button.addEventListener('click', () => {
+            //         mixer.stopAllAction();
+            //         mixer.clipAction(clip).reset().play();
+            //     });
+            //     controlsDiv.appendChild(button);
+            // });
 
             console.log("burtsa bounding box:", box.min, box.max);
         },

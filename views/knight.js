@@ -41,6 +41,7 @@ export function initKnightScene(containerId) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.container.translateY("40px")
     container.appendChild(renderer.domElement);
 
     // Orbit Controls
@@ -55,6 +56,7 @@ export function initKnightScene(containerId) {
     labelRenderer.domElement.style.top = '0';
     labelRenderer.domElement.style.left = '0';
     labelRenderer.domElement.style.pointerEvents = 'none';
+    
     container.appendChild(labelRenderer.domElement);
 
     let mixer = null;
@@ -114,20 +116,20 @@ export function initKnightScene(containerId) {
             mixer = new THREE.AnimationMixer(knight);
             setMixer(mixer, gltf.animations);
 
-            gltf.animations.forEach((clip, i) => {
-                const button = document.createElement('button');
-                button.textContent = clip.name || `Anim ${i + 1}`;
-                button.style.fontSize = '0.7em';
-                button.style.backgroundColor = 'rgba(255,255,255,0.7)';
-                button.style.border = '1px solid rgba(0,0,0,0.2)';
-                button.style.cursor = 'pointer';
-                button.style.width = '100%';
-                button.addEventListener('click', () => {
-                    mixer.stopAllAction();
-                    mixer.clipAction(clip).reset().play();
-                });
-                controlsDiv.appendChild(button);
-            });
+            // gltf.animations.forEach((clip, i) => {
+            //     const button = document.createElement('button');
+            //     button.textContent = clip.name || `Anim ${i + 1}`;
+            //     button.style.fontSize = '0.7em';
+            //     button.style.backgroundColor = 'rgba(255,255,255,0.7)';
+            //     button.style.border = '1px solid rgba(0,0,0,0.2)';
+            //     button.style.cursor = 'pointer';
+            //     button.style.width = '100%';
+            //     button.addEventListener('click', () => {
+            //         mixer.stopAllAction();
+            //         mixer.clipAction(clip).reset().play();
+            //     });
+            //     controlsDiv.appendChild(button);
+            // });
 
             console.log("knight bounding box:", box.min, box.max);
         },
@@ -138,6 +140,7 @@ export function initKnightScene(containerId) {
     // Resize handling
     const resizeObserver = new ResizeObserver(() => {
         camera.aspect = container.clientWidth / container.clientHeight;
+        container.translateY("80px");
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
         labelRenderer.setSize(container.clientWidth, container.clientHeight);
